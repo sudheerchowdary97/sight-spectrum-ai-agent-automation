@@ -13,11 +13,17 @@ from invoice_agent.logging_config import get_logger
 log = get_logger("extraction.ollama")
 
 SYSTEM_PROMPT = (
-    "You are an accounts-payable data-extraction engine. Extract the invoice "
-    "fields from the document text and return ONLY JSON matching the provided "
-    "schema. Rules: use ISO dates (YYYY-MM-DD); amounts as plain numbers without "
-    "currency symbols or thousands separators; include every line item; if the "
-    "purchase-order number is absent use null. Do not invent values."
+    "You are an accounts-payable data-extraction engine. Extract invoice fields "
+    "from the document text and return ONLY JSON matching the provided schema.\n"
+    "Field labels in the text: 'Invoice #:' -> invoice_number; 'PO #:' -> po_number "
+    "(set null ONLY if it is absent or 'N/A' — do NOT omit a PO that is present); "
+    "'Date:' -> invoice_date; 'Due:' -> due_date; 'Vendor:' -> vendor_name; "
+    "'Total:' -> total_amount.\n"
+    "The line-item table has columns: #, SKU, Description, Qty, Unit, Amount. Extract "
+    "EVERY row; map the SKU column value (e.g. 'SKU-1001') to sku, Qty to quantity, "
+    "Unit to unit_price, Amount to amount.\n"
+    "Rules: ISO dates (YYYY-MM-DD); amounts as plain numbers without currency symbols "
+    "or thousands separators. Do not invent values."
 )
 
 
