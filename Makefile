@@ -2,7 +2,10 @@
 # Usage: `make <target>`. Docker (Python 3.12) is the canonical runtime.
 
 .DEFAULT_GOAL := help
-COMPOSE := docker compose
+# Use the Compose v2 plugin if present, else fall back to the v1 standalone.
+COMPOSE := $(shell if docker compose version >/dev/null 2>&1; then echo "docker compose"; \
+	elif command -v docker-compose >/dev/null 2>&1; then echo "docker-compose"; \
+	else echo "docker compose"; fi)
 
 .PHONY: help
 help: ## Show this help
