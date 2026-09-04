@@ -39,6 +39,10 @@ COPY src ./src
 COPY config ./config
 COPY scripts ./scripts
 
+# RapidOCR (Docling's OCR engine) downloads its models into its own package dir
+# on first use; make that writable for the non-root runtime user.
+RUN chown -R appuser /opt/venv/lib/python3.12/site-packages/rapidocr || true
+
 USER appuser
 EXPOSE 8000
 
