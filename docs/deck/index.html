@@ -3,426 +3,336 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Agentic Invoice-to-Payment Automation</title>
+<title>Agentic Invoice-to-Payment — Keynote</title>
 <style>
   :root{
-    --bg0:#0b1020; --bg1:#131a33; --ink:#e8edff; --muted:#9aa6c8;
-    --accent:#6366f1; --accent2:#22d3ee; --good:#34d399; --warn:#f59e0b; --bad:#fb7185;
-    --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.12); --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    --ink:#f5f5f7; --gray:#a1a1a6; --dim:#6e6e73;
+    --line:rgba(255,255,255,.14);
+    --grad:linear-gradient(90deg,#2997ff 0%,#a855f7 50%,#ff2d55 100%);
+    --sans:-apple-system,"SF Pro Display","SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
-  body{
-    font-family:var(--sans); color:var(--ink); overflow:hidden;
-    background:radial-gradient(1200px 700px at 80% -10%,rgba(99,102,241,.25),transparent 60%),
-               radial-gradient(1000px 600px at 0% 110%,rgba(34,211,238,.18),transparent 55%),
-               linear-gradient(160deg,var(--bg0),var(--bg1));
-  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  html,body{margin:0;height:100%;background:#000}
+  body{font-family:var(--sans);color:var(--ink);overflow:hidden}
   .deck{position:fixed;inset:0}
   .slide{
     position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
-    padding:6vh 8vw;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease;
+    padding:8vh 9vw;background:#000;
   }
-  .slide.active{display:flex;opacity:1;transform:none}
-  h1{font-size:clamp(34px,5vw,64px);line-height:1.05;margin:0 0 .3em;font-weight:800;letter-spacing:-.02em}
-  h2{font-size:clamp(24px,3.2vw,40px);margin:0 0 .5em;font-weight:750;letter-spacing:-.01em}
-  h3{font-size:18px;color:var(--accent2);text-transform:uppercase;letter-spacing:.14em;margin:0 0 1.2em;font-weight:700}
-  p,li{font-size:clamp(15px,1.5vw,20px);color:var(--ink);line-height:1.5}
-  .muted{color:var(--muted)}
-  .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  ul{margin:.2em 0;padding-left:1.1em} li{margin:.35em 0}
-  .kicker{color:var(--accent2);font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:14px;margin-bottom:1em}
-  .grid{display:grid;gap:18px}
-  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
-  .card h4{margin:.1em 0 .4em;font-size:18px}
-  .card small{color:var(--muted)}
-  table{width:100%;border-collapse:collapse;font-size:clamp(13px,1.35vw,17px)}
-  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
-  th{color:var(--accent2);font-weight:700;font-size:.85em;text-transform:uppercase;letter-spacing:.06em}
-  code,.mono{font-family:var(--mono);font-size:.92em}
-  .pill{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin:4px 6px 0 0;font-size:14px}
-  .pill b{color:var(--accent2)}
-  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
-  .node{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-weight:600;font-size:15px}
-  .node.k{border-color:rgba(99,102,241,.6);box-shadow:0 0 0 1px rgba(99,102,241,.25) inset}
-  .arrow{color:var(--accent2);font-size:20px}
-  .metric{font-size:clamp(30px,4.5vw,56px);font-weight:800;line-height:1}
-  .metric.good{color:var(--good)} .metric.acc{color:var(--accent2)}
-  .tag{font-size:13px;color:var(--muted)}
-  .ok{color:var(--good)} .ex{color:var(--warn)}
-  .progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width .3s ease;z-index:10}
-  .hud{position:fixed;bottom:16px;right:20px;color:var(--muted);font-size:13px;font-family:var(--mono);z-index:10}
-  .hint{position:fixed;bottom:16px;left:20px;color:var(--muted);font-size:12px;z-index:10}
-  .foot{position:absolute;bottom:3vh;left:8vw;right:8vw;display:flex;justify-content:space-between;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:10px}
-  .lead{font-size:clamp(18px,2vw,26px);color:var(--muted);max-width:48ch}
-  .big{font-size:clamp(15px,1.6vw,21px)}
+  .slide.active{display:flex}
+  .slide.light{background:#f5f5f7;color:#1d1d1f}
+  .slide.grad{background:radial-gradient(120% 120% at 50% 0%,#101124,#000 70%)}
+  .slide.center{align-items:center;text-align:center}
+
+  .kicker{font-size:clamp(13px,1.4vw,17px);letter-spacing:.32em;text-transform:uppercase;color:var(--gray);font-weight:600;margin-bottom:2.2vh}
+  .display{font-size:clamp(40px,7.4vw,104px);font-weight:700;line-height:1.02;letter-spacing:-.03em;margin:0}
+  .headline{font-size:clamp(32px,5.2vw,76px);font-weight:700;line-height:1.05;letter-spacing:-.025em;margin:0}
+  .sub{font-size:clamp(18px,2.2vw,30px);color:var(--gray);font-weight:400;line-height:1.4;margin-top:2.4vh;max-width:24ch}
+  .slide.center .sub{max-width:30ch}
+  .light .sub{color:#6e6e73}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tiny{font-size:clamp(12px,1.2vw,15px);color:var(--dim);letter-spacing:.02em}
+
+  .rows{margin-top:3vh;display:flex;flex-direction:column;gap:1.6vh}
+  .rows .r{font-size:clamp(20px,2.6vw,38px);font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+  .light .rows .r{color:#1d1d1f}
+  .rows .r span{color:var(--gray);font-weight:400}
+
+  .flowline{display:flex;flex-wrap:wrap;gap:14px 10px;align-items:center;margin-top:4vh}
+  .step{font-size:clamp(16px,1.9vw,26px);font-weight:600}
+  .sep{color:#3a3a3c;font-size:clamp(18px,2vw,26px)}
+  .accent{color:#2997ff}
+
+  .wall{display:flex;flex-wrap:wrap;gap:6vw;margin-top:2vh}
+  .stat{display:flex;flex-direction:column}
+  .stat .n{font-size:clamp(52px,10vw,140px);font-weight:700;letter-spacing:-.04em;line-height:.9}
+  .stat .l{font-size:clamp(14px,1.5vw,20px);color:var(--gray);margin-top:1.4vh;font-weight:500}
+
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:3.5vh;max-width:60vw}
+  .slide.center .chips{justify-content:center}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:clamp(14px,1.5vw,19px);color:var(--ink);font-weight:500}
+  .chip b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  table{border-collapse:collapse;margin-top:3vh;font-size:clamp(15px,1.7vw,24px);width:100%;max-width:60vw}
+  td,th{padding:12px 16px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--gray);font-weight:600;font-size:.7em;letter-spacing:.08em;text-transform:uppercase}
+  .ok{color:#30d158;font-weight:600}.ex{color:#ff9f0a;font-weight:600}
+  .mono{font-family:var(--mono)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4vh 6vw;margin-top:3vh;max-width:70vw}
+  .grid2 h4{font-size:clamp(18px,2vw,26px);margin:0 0 .5em;font-weight:650}
+  .grid2 p{font-size:clamp(15px,1.6vw,21px);color:var(--gray);margin:0;line-height:1.45}
+
+  /* build-in animation */
+  .build{opacity:0;will-change:transform,opacity}
+  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .bar{position:fixed;top:0;left:0;height:2px;background:var(--grad);width:0;transition:width .4s ease;z-index:20}
+  .num{position:fixed;bottom:18px;right:22px;color:var(--dim);font-size:12px;font-family:var(--mono);z-index:20;letter-spacing:.1em}
+  .light ~ .num{color:#8a8a8e}
+  .tip{position:fixed;bottom:18px;left:22px;color:var(--dim);font-size:11px;z-index:20;letter-spacing:.06em}
+  .foot{position:absolute;left:9vw;right:9vw;bottom:5vh;display:flex;justify-content:space-between;color:var(--dim);font-size:clamp(12px,1.2vw,15px)}
 </style>
 </head>
 <body>
-<div class="progress" id="progress"></div>
+<div class="bar" id="bar"></div>
 <div class="deck" id="deck">
 
-  <!-- 1 TITLE -->
-  <section class="slide">
-    <div class="kicker">AI Engineer · Technical Assignment</div>
-    <h1>Agentic <span class="grad">Invoice-to-Payment</span> Automation</h1>
-    <p class="lead">An AI agent that reads invoices from a mailbox, matches them against Purchase Orders &amp; Goods Receipts in the ERP, and posts Payment Journals — with full auditability and human oversight for exceptions.</p>
-    <div style="margin-top:20px">
-      <span class="pill"><b>Docling</b> extraction</span>
-      <span class="pill"><b>PGVector</b> + <b>LlamaIndex</b> RAG</span>
-      <span class="pill"><b>LangGraph</b> agent</span>
-      <span class="pill"><b>Ollama</b> LLM</span>
-      <span class="pill"><b>Phoenix</b> tracing</span>
-      <span class="pill"><b>FastAPI</b> · <b>Docker</b></span>
-    </div>
-    <div class="foot"><span>Sudheer Chowdary</span><span class="mono">github.com/sudheerchowdary97/sight-spectrum-ai-agent-automation</span></div>
+  <!-- 1 -->
+  <section class="slide center grad">
+    <div class="kicker build">AI Engineer · Technical Assignment</div>
+    <h1 class="display build">Invoice&#8209;to&#8209;Payment.<br><span class="grad-text">Automated.</span></h1>
+    <p class="sub build">An AI agent that reads invoices, matches them to purchase orders, and posts payments — with human oversight where it counts.</p>
   </section>
 
-  <!-- 2 PROBLEM -->
+  <!-- 2 -->
   <section class="slide">
-    <h3>The problem</h3>
-    <h2>Accounts Payable is manual, slow, and error-prone</h2>
-    <div class="grid g3" style="margin-top:10px">
-      <div class="card"><h4>📥 Unstructured intake</h4><small>Vendor invoices arrive by email as PDFs, scans, and HTML — no consistent schema.</small></div>
-      <div class="card"><h4>🔎 Tedious matching</h4><small>Each invoice is manually reconciled against a PO and Goods Receipt, line by line.</small></div>
-      <div class="card"><h4>⚠️ Costly exceptions</h4><small>Price/qty variances, missing POs and duplicates need judgement — and an audit trail.</small></div>
-    </div>
-    <p class="big" style="margin-top:22px">The same reconciliation pattern also applies in reverse — matching inbound <b>customer remittances</b> to open <b>AR</b> items.</p>
+    <div class="kicker build">The problem</div>
+    <h2 class="headline build">Accounts Payable<br>still runs on <span class="grad-text">manual effort.</span></h2>
   </section>
 
-  <!-- 3 OBJECTIVE -->
+  <!-- 3 -->
   <section class="slide">
-    <h3>Objective</h3>
-    <h2>A contextual, agentic workflow — end to end</h2>
-    <div class="flow">
-      <span class="node">Shared mailbox</span><span class="arrow">→</span>
-      <span class="node">Extract</span><span class="arrow">→</span>
-      <span class="node">2-/3-way match</span><span class="arrow">→</span>
-      <span class="node k">Post journal</span><span class="arrow">/</span>
-      <span class="node k">Escalate</span><span class="arrow">→</span>
-      <span class="node">Audit</span>
-    </div>
-    <div class="grid g2" style="margin-top:26px">
-      <div class="card"><h4>Straight-through when confident</h4><small>Clean matches post a Payment Journal automatically.</small></div>
-      <div class="card"><h4>Human-in-the-loop when not</h4><small>Exceptions route to an approver; every decision is auditable back to the source email.</small></div>
+    <div class="rows">
+      <div class="r build">Invoices arrive as PDFs, scans, and email. <span>— no schema.</span></div>
+      <div class="r build">Every one is matched to a PO by hand. <span>— line by line.</span></div>
+      <div class="r build">Variances and duplicates need judgement. <span>— and an audit trail.</span></div>
     </div>
   </section>
 
-  <!-- 4 ARCHITECTURE -->
-  <section class="slide">
-    <h3>Architecture</h3>
-    <h2>Five containers, one <code>docker compose up</code></h2>
-    <div class="flow" style="margin-bottom:8px">
-      <span class="node k">Agent API<br><span class="tag">FastAPI :8000</span></span><span class="arrow">↔</span>
-      <span class="node">Docling<br><span class="tag">parse / OCR</span></span>
-      <span class="node">Ollama<br><span class="tag">LLM + embed :11434</span></span>
-      <span class="node">PGVector<br><span class="tag">Postgres :5432</span></span>
-      <span class="node">Mock ERP<br><span class="tag">:8001</span></span>
-      <span class="node">Phoenix<br><span class="tag">traces :6006</span></span>
-    </div>
-    <p class="big muted">Agent API orchestrates the pipeline (LangGraph). Docling parses documents; Ollama drives extraction &amp; embeddings; LlamaIndex indexes POs into PGVector; the Mock ERP stands in for SAP/Oracle/NetSuite; Phoenix captures traces. Every decision is written to an audit trail.</p>
+  <!-- 4 -->
+  <section class="slide center">
+    <div class="kicker build">The idea</div>
+    <h2 class="display build">Meet the agent.</h2>
+    <p class="sub build">It does the reconciliation. People handle the exceptions.</p>
   </section>
 
-  <!-- 5 STACK -->
+  <!-- 5 -->
   <section class="slide">
-    <h3>Mandatory stack — fully honored</h3>
-    <h2>Each required component, mapped</h2>
-    <div class="grid g2">
-      <table>
-        <tr><th>Component</th><th>Technology</th></tr>
-        <tr><td>Email ingestion</td><td>Graph / Gmail API <span class="tag">(+ folder replay)</span></td></tr>
-        <tr><td>Document processing</td><td>Docling <span class="tag">(+ pypdfium2, OCR)</span></td></tr>
-        <tr><td>Vector database</td><td>PostgreSQL + PGVector</td></tr>
-        <tr><td>RAG framework</td><td>LlamaIndex</td></tr>
-      </table>
-      <table>
-        <tr><th>Component</th><th>Technology</th></tr>
-        <tr><td>Orchestration</td><td>LangGraph</td></tr>
-        <tr><td>LLM provider</td><td>Ollama <span class="tag">(llama3.1:8b)</span></td></tr>
-        <tr><td>ERP integration</td><td>Mock API <span class="tag">(SAP/Oracle-shaped)</span></td></tr>
-        <tr><td>Observability / Eval</td><td>Arize Phoenix / RAGAs + metrics</td></tr>
-      </table>
+    <div class="kicker build">The flow</div>
+    <div class="flowline">
+      <span class="step build">Ingest</span><span class="sep build">→</span>
+      <span class="step build">Extract</span><span class="sep build">→</span>
+      <span class="step build">Match</span><span class="sep build">→</span>
+      <span class="step build accent">Post</span><span class="sep build">/</span>
+      <span class="step build accent">Escalate</span><span class="sep build">→</span>
+      <span class="step build">Audit</span>
     </div>
-    <p class="tag" style="margin-top:14px">Deployment: Docker &amp; Docker Compose · canonical runtime Python 3.12.</p>
+    <p class="sub build">One pipeline, end to end — mirrored for AR remittances.</p>
   </section>
 
-  <!-- 6 DATA -->
+  <!-- 6 -->
   <section class="slide">
-    <h3>Synthetic data — reproducible &amp; self-labelling</h3>
-    <h2>The dataset is engineered to test every path</h2>
-    <div class="grid g2">
-      <div>
-        <p class="big">A seeded generator emits internally-consistent ERP master data and invoices <b>derived</b> from POs, each tagged with its expected outcome.</p>
-        <ul>
-          <li><b>Formats:</b> digital PDF, scanned PDF (OCR), HTML, image</li>
-          <li><b>Rendered</b> with an embedded font → real extractable text layer</li>
-          <li><b>Ground truth</b> drives evaluation with zero manual labelling</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h4>Scenario mix (seed 42 · 60 POs → 71 invoices)</h4>
-        <table>
-          <tr><th>Scenario</th><th>Purpose</th></tr>
-          <tr><td>clean</td><td>straight-through</td></tr>
-          <tr><td>price / qty variance</td><td>tolerance + escalation</td></tr>
-          <tr><td>partial</td><td>subset billing</td></tr>
-          <tr><td>missing-PO / duplicate</td><td>exception routing</td></tr>
-          <tr><td>fuzzy vendor</td><td>semantic retrieval</td></tr>
-        </table>
-      </div>
+    <div class="kicker build">Foundations</div>
+    <h2 class="headline build">Built on a proven stack.</h2>
+    <div class="chips">
+      <span class="chip build"><b>Docling</b> document AI</span>
+      <span class="chip build"><b>PGVector</b> + <b>LlamaIndex</b></span>
+      <span class="chip build"><b>LangGraph</b> orchestration</span>
+      <span class="chip build"><b>Ollama</b> local LLM</span>
+      <span class="chip build"><b>Phoenix</b> observability</span>
+      <span class="chip build"><b>RAGAs</b> evaluation</span>
+      <span class="chip build"><b>FastAPI</b> · <b>Docker</b></span>
     </div>
   </section>
 
-  <!-- 7 INGESTION -->
+  <!-- 7 -->
   <section class="slide">
-    <h3>Pipeline · Ingestion</h3>
-    <h2>Provider-abstracted intake with a replay mode</h2>
-    <div class="grid g2">
-      <div class="card"><h4>Design</h4>
-        <ul><li><code>EmailProvider</code> protocol → Graph / Gmail / <b>folder replay</b></li>
-        <li>Extract &amp; classify attachments (pdf/image/html)</li>
-        <li>Persist bytes + <b>content SHA-256</b> for dedup</li>
-        <li>Replay-idempotent: already-seen emails skipped</li></ul>
-      </div>
-      <div class="card"><h4>Why folder replay</h4>
-        <small>The whole pipeline runs and demos without live mailbox OAuth — Graph/Gmail are documented interface stubs behind the same protocol, swappable with one line.</small>
-        <p class="mono tag" style="margin-top:14px">POST /api/v1/ingest-invoice</p>
-      </div>
+    <div class="kicker build">Architecture</div>
+    <h2 class="headline build">Five services. One command.</h2>
+    <div class="flowline build">
+      <span class="chip">Agent API</span><span class="sep">·</span>
+      <span class="chip">Mock ERP</span><span class="sep">·</span>
+      <span class="chip">Postgres + PGVector</span><span class="sep">·</span>
+      <span class="chip">Ollama</span><span class="sep">·</span>
+      <span class="chip">Phoenix</span>
+    </div>
+    <p class="sub build">The agent orchestrates; Docling parses; Ollama reasons; LlamaIndex retrieves; the ERP posts; Phoenix watches.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide center light">
+    <div class="kicker build" style="color:#6e6e73">Data</div>
+    <h2 class="display build">Data you can trust.</h2>
+    <p class="sub build">A seeded generator builds invoices from real POs across every scenario — each one self-labelled for evaluation.</p>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <div class="kicker build">Ingestion</div>
+    <h2 class="headline build">Read the mailbox.<br><span class="grad-text">Any format.</span></h2>
+    <p class="sub build">Provider-abstracted intake — Microsoft Graph, Gmail, or folder replay — extracting, classifying, and de-duplicating every attachment.</p>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="kicker build">Extraction</div>
+    <h2 class="headline build">Turn a document<br>into <span class="grad-text">structured data.</span></h2>
+    <p class="sub build">Docling parses; a local LLM returns schema-validated fields; a deterministic backstop recovers what the model misses.</p>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide center grad">
+    <h2 class="display build">It reads scans, too.</h2>
+    <p class="sub build">Born-digital PDFs use the text layer. Image-only scans fall back to OCR — automatically.</p>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide">
+    <div class="kicker build">Retrieval</div>
+    <h2 class="headline build">Find the right PO —<br>even when the invoice is <span class="grad-text">messy.</span></h2>
+    <p class="sub build">Semantic search over PO embeddings in PGVector shrugs off fuzzy vendor names and missing PO numbers.</p>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide center">
+    <div class="wall build" style="justify-content:center">
+      <div class="stat"><div class="n grad-text">100%</div><div class="l">retrieval hit@1 · MRR 1.0</div></div>
+    </div>
+    <p class="sub build">The correct purchase order, ranked first — every time, across fuzzed-vendor tests.</p>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide">
+    <div class="kicker build">Matching</div>
+    <h2 class="headline build">2&#8209;way. 3&#8209;way.<br>Tolerant by design.</h2>
+    <p class="sub build">Line-level comparison against PO and Goods Receipt, with configurable price and quantity tolerances.</p>
+  </section>
+
+  <!-- 15 -->
+  <section class="slide">
+    <div class="kicker build">Orchestration</div>
+    <h2 class="headline build">One graph.<br>Every step.</h2>
+    <p class="sub build">A LangGraph state machine routes clean matches to auto-posting and everything else to a human — accumulating an audit trail along the way.</p>
+  </section>
+
+  <!-- 16 -->
+  <section class="slide center light">
+    <div class="kicker build" style="color:#6e6e73">Human-in-the-loop</div>
+    <h2 class="display build">Automation with<br>a safety net.</h2>
+    <p class="sub build">Exceptions queue for review. Approve to post the journal. Reject to close. Always audited.</p>
+  </section>
+
+  <!-- 17 -->
+  <section class="slide">
+    <div class="kicker build">Closing the loop</div>
+    <h2 class="headline build">Both directions.</h2>
+    <div class="grid2">
+      <div class="build"><h4>Payable</h4><p>Post an approved invoice as a Payment Journal — idempotent, so duplicates never pay twice.</p></div>
+      <div class="build"><h4>Receivable</h4><p>Match inbound remittances to open AR items and apply cash — full, partial, or overpaid.</p></div>
     </div>
   </section>
 
-  <!-- 8 EXTRACTION -->
+  <!-- 18 -->
   <section class="slide">
-    <h3>Pipeline · Extraction</h3>
-    <h2>Docling + Ollama → a validated Invoice</h2>
-    <div class="flow">
-      <span class="node">Document</span><span class="arrow">→</span>
-      <span class="node">Text layer<br><span class="tag">pypdfium2</span></span><span class="arrow">/</span>
-      <span class="node">OCR<br><span class="tag">Docling · scans</span></span><span class="arrow">→</span>
-      <span class="node k">Ollama JSON<br><span class="tag">schema-constrained</span></span><span class="arrow">→</span>
-      <span class="node">Normalize + validate</span>
-    </div>
-    <div class="grid g3" style="margin-top:22px">
-      <div class="card"><h4>Right tool per doc</h4><small>Born-digital PDFs use the text layer (fast, lossless); only scans/images hit OCR.</small></div>
-      <div class="card"><h4>Robust fields</h4><small>Structured-output schema + a deterministic <b>PO-number backstop</b> when the LLM drops it.</small></div>
-      <div class="card"><h4>Quality signal</h4><small>Dedup hash + confidence from line-item ↔ total reconciliation.</small></div>
-    </div>
+    <div class="kicker build">Trust</div>
+    <h2 class="headline build">Every decision,<br><span class="grad-text">traceable.</span></h2>
+    <p class="sub build">One audit record per step, correlated across a run and linked back to the source email.</p>
   </section>
 
-  <!-- 9 RAG -->
+  <!-- 19 -->
   <section class="slide">
-    <h3>Pipeline · Retrieval (RAG)</h3>
-    <h2>Semantic PO lookup — robust to messy invoices</h2>
-    <div class="grid g2">
-      <div>
-        <p class="big">POs are embedded (Ollama <code>nomic-embed-text</code>) and indexed in <b>PGVector</b> via <b>LlamaIndex</b>. An invoice is rendered into the same vendor + line-items + total space and matched by similarity.</p>
-        <ul><li>Recovers the right PO even with <b>fuzzy vendor names</b> or a missing/garbled PO number</li>
-        <li>Feeds the matching engine with candidate POs</li></ul>
-      </div>
-      <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
-        <div class="metric acc">100%</div>
-        <p class="big">hit@1 — correct PO retrieved first across a fuzzed-vendor sample (verified live, 60 POs indexed)</p>
-      </div>
-    </div>
+    <div class="kicker build">Observability</div>
+    <h2 class="headline build">See inside the agent.</h2>
+    <p class="sub build">OpenTelemetry traces stream to Arize Phoenix — the retrieval and reasoning steps, visible.</p>
   </section>
 
-  <!-- 10 MATCHING -->
-  <section class="slide">
-    <h3>Pipeline · Matching</h3>
-    <h2>2-way &amp; 3-way with configurable tolerances</h2>
-    <div class="grid g2">
-      <div class="card"><h4>How</h4>
-        <ul><li>Line match by SKU, falling back to description</li>
-        <li><b>2-way</b> Invoice↔PO · <b>3-way</b> adds Goods Receipt qty</li>
-        <li>Per-line variances vs price / qty tolerances</li></ul>
-      </div>
-      <div class="card"><h4>Outcome</h4>
-        <div class="flow" style="gap:6px">
-          <span class="pill ok">matched</span><span class="pill ex">price_variance</span>
-          <span class="pill ex">qty_variance</span><span class="pill ex">partial</span>
-          <span class="pill ex">missing_po</span><span class="pill ex">duplicate</span>
-        </div>
-        <small style="display:block;margin-top:12px"><span class="ok">matched</span> → auto-post · everything else → human review.</small>
-        <p class="mono tag" style="margin-top:10px">POST /api/v1/match-po</p>
-      </div>
-    </div>
+  <!-- 20 -->
+  <section class="slide center">
+    <div class="kicker build">Evaluation</div>
+    <h2 class="display build">How good is it?</h2>
+    <p class="sub build">Measured against auto-labelled ground truth — not asserted.</p>
   </section>
 
-  <!-- 11 ORCHESTRATION -->
-  <section class="slide">
-    <h3>Pipeline · Orchestration</h3>
-    <h2>A LangGraph state machine</h2>
-    <div class="flow">
-      <span class="node">START</span><span class="arrow">→</span>
-      <span class="node">extract</span><span class="arrow">→</span>
-      <span class="node">match</span><span class="arrow">→</span>
-      <span class="node k">post → END</span>
-      <span class="arrow">or</span>
-      <span class="node k">escalate → END</span>
+  <!-- 21 -->
+  <section class="slide center">
+    <div class="wall build">
+      <div class="stat"><div class="n grad-text">96%</div><div class="l">extraction accuracy</div></div>
+      <div class="stat"><div class="n grad-text">100%</div><div class="l">retrieval hit@1</div></div>
+      <div class="stat"><div class="n grad-text">87%</div><div class="l">straight-through rate</div></div>
     </div>
-    <div class="grid g3" style="margin-top:22px">
-      <div class="card"><h4>Typed state</h4><small>Invoice, match, journal, decision — with an additive <b>audit</b> reducer.</small></div>
-      <div class="card"><h4>Conditional routing</h4><small>Clean match auto-posts; exceptions branch to escalation.</small></div>
-      <div class="card"><h4>Injectable nodes</h4><small>Node logic is pure &amp; unit-tested; LangGraph wires it.</small></div>
-    </div>
+    <p class="tiny build" style="margin-top:4vh">Live run · 15 invoices · Docling + Ollama llama3.1:8b + PGVector + ERP</p>
   </section>
 
-  <!-- 12 HITL -->
+  <!-- 22 -->
   <section class="slide">
-    <h3>Human-in-the-loop</h3>
-    <h2>Exceptions become a review queue</h2>
-    <div class="flow">
-      <span class="node">Exception</span><span class="arrow">→</span>
-      <span class="node">Queue<br><span class="tag">/exceptions</span></span><span class="arrow">→</span>
-      <span class="node k">Approve → post journal</span>
-      <span class="arrow">/</span>
-      <span class="node">Reject → close</span>
-    </div>
-    <p class="big" style="margin-top:20px">Approving posts the Payment Journal and records <code>human_approved</code> + <code>journal_posted</code>; rejecting records <code>human_rejected</code>. Nothing is auto-paid without oversight.</p>
-    <p class="mono tag">GET /exceptions · POST /exceptions/{id}/approve · /reject</p>
-  </section>
-
-  <!-- 13 POSTING + AR -->
-  <section class="slide">
-    <h3>Posting &amp; the AR mirror</h3>
-    <h2>Close the loop — both directions</h2>
-    <div class="grid g2">
-      <div class="card"><h4>AP · Payment Journal</h4>
-        <small>Post an approved invoice to the ERP; idempotent — a duplicate invoice returns <b>409</b> instead of double-paying.</small>
-        <p class="mono tag" style="margin-top:10px">POST /api/v1/post-payment-journal</p>
-      </div>
-      <div class="card"><h4>AR · Cash application</h4>
-        <small>Match an inbound remittance to an open AR item by referenced invoice, then apply cash — full / partial / overpaid.</small>
-        <p class="mono tag" style="margin-top:10px">POST /api/v1/apply-remittance</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 14 AUDIT + OBS -->
-  <section class="slide">
-    <h3>Auditability &amp; observability</h3>
-    <h2>Every decision is traceable</h2>
-    <div class="grid g2">
-      <div class="card"><h4>Audit trail</h4>
-        <small>One record per decision — <code>correlation_id</code> ties a run together and links back to the <b>source email</b>. Query by correlation or invoice.</small>
-        <p class="mono tag" style="margin-top:10px">GET /api/v1/audit-log</p>
-      </div>
-      <div class="card"><h4>Phoenix tracing</h4>
-        <small>OpenTelemetry → Arize Phoenix; LlamaIndex is instrumented so RAG/LLM steps are visible. Best-effort: a no-op if the collector is absent.</small>
-        <p class="mono tag" style="margin-top:10px">localhost:6006</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 15 EVALUATION -->
-  <section class="slide">
-    <h3>Evaluation · measured, not asserted</h3>
-    <h2>Results on the labelled dataset <span class="tag">(15 invoices, live run)</span></h2>
-    <div class="grid g4">
-      <div class="card"><small>Extraction accuracy</small><div class="metric acc">96.0%</div><small class="muted">vendor/total/lines 100% · PO 86.7%</small></div>
-      <div class="card"><small>Retrieval hit@1</small><div class="metric good">100%</div><small class="muted">MRR 1.0 · correct PO first</small></div>
-      <div class="card"><small>STP rate (auto-posted)</small><div class="metric acc">86.7%</div><small class="muted">13 / 15 straight-through</small></div>
-      <div class="card"><small>Match classification</small><div class="metric">80.0%</div><small class="muted">vs ground-truth status</small></div>
-    </div>
-    <p class="big" style="margin-top:18px"><code>run_eval.py</code> replays the dataset through the real pipeline → <code>evaluation_report.{json,md}</code>. Also: field-level extraction, RAGAs context precision/recall (best-effort via the Ollama judge).</p>
-  </section>
-
-  <!-- 16 DEMO -->
-  <section class="slide">
-    <h3>Live run · <code>run_agent.py --limit 5</code></h3>
-    <h2>Four auto-posted, one escalated</h2>
-    <table>
+    <div class="kicker build">Live run</div>
+    <h2 class="headline build">Four posted. One escalated.</h2>
+    <table class="build">
       <tr><th>Invoice</th><th>Match</th><th>Decision</th><th>Journal</th></tr>
-      <tr><td>PO-10001</td><td>matched (3-way)</td><td class="ok">posted</td><td>PJ-000001</td></tr>
-      <tr><td>90002 <span class="tag">scanned/OCR</span></td><td>matched (3-way)</td><td class="ok">posted</td><td>PJ-000002</td></tr>
-      <tr><td>90003</td><td>matched (3-way)</td><td class="ok">posted</td><td>PJ-000003</td></tr>
-      <tr><td>90004</td><td class="ex">qty_variance</td><td class="ex">escalated</td><td>—</td></tr>
-      <tr><td>90005</td><td>matched (3-way)</td><td class="ok">posted</td><td>PJ-000004</td></tr>
+      <tr><td>PO-10001</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000001</td></tr>
+      <tr><td>90002 · scan</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000002</td></tr>
+      <tr><td>90003</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000003</td></tr>
+      <tr><td>90004</td><td class="ex">qty variance</td><td class="ex">escalated</td><td>—</td></tr>
+      <tr><td>90005</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000004</td></tr>
     </table>
-    <p class="big" style="margin-top:16px">Then via API: the escalated exception was <b>approved</b> → journal <code>PJ-000005</code> posted, fully audited.</p>
   </section>
 
-  <!-- 17 DESIGN DECISIONS -->
+  <!-- 23 -->
   <section class="slide">
-    <h3>Design decisions &amp; trade-offs</h3>
-    <h2>Deliberate, defensible choices</h2>
-    <div class="grid g2">
-      <ul>
-        <li><b>Mock ERP first</b> — build immediately; swap a real sandbox behind the same client.</li>
-        <li><b>pypdfium2 for digital PDFs</b> — Docling's layout pass dropped born-digital text; OCR reserved for scans.</li>
-        <li><b>Deterministic PO backstop</b> — beats re-tuning an 8B model on a well-labelled field.</li>
-      </ul>
-      <ul>
-        <li><b>Durable exception queue</b> over a pinned paused graph — production-sound &amp; testable.</li>
-        <li><b>Schema-first contract</b> — one Pydantic model set shared by every stage.</li>
-        <li><b>Injectable services</b> — heavy LLM/vector paths faked for fast, local unit tests.</li>
-      </ul>
+    <div class="kicker build">Choices that matter</div>
+    <div class="rows">
+      <div class="r build">Text layer for digital PDFs. <span>OCR only for scans.</span></div>
+      <div class="r build">A durable review queue. <span>Not a paused process.</span></div>
+      <div class="r build">One schema, shared everywhere. <span>Swap the mock ERP for real.</span></div>
     </div>
   </section>
 
-  <!-- 18 DEPLOY -->
-  <section class="slide">
-    <h3>Deployment</h3>
-    <h2>One command up, then drive it</h2>
-    <div class="card" style="font-family:var(--mono);font-size:15px;line-height:1.9">
-      <div><span class="muted">$</span> make up <span class="tag"># postgres, ollama, phoenix, mock-erp, api</span></div>
-      <div><span class="muted">$</span> make ollama-pull <span class="tag"># llama3.1:8b + nomic-embed-text</span></div>
-      <div><span class="muted">$</span> make seed <span class="tag"># generate data + re-seed ERP</span></div>
-      <div><span class="muted">$</span> make agent <span class="tag"># run the full pipeline</span></div>
-      <div><span class="muted">$</span> make eval <span class="tag"># metrics → evaluation_report.md</span></div>
-    </div>
-    <p class="tag" style="margin-top:16px">Swagger at <code>/docs</code> · OpenAPI snapshot committed at <code>docs/openapi.json</code> · 69 unit tests, CI on push.</p>
+  <!-- 24 -->
+  <section class="slide center light">
+    <div class="kicker build" style="color:#6e6e73">Deployment</div>
+    <h2 class="display build">Ship it.</h2>
+    <p class="sub build mono" style="font-size:clamp(15px,1.7vw,22px)">make up · make ollama-pull · make agent · make eval</p>
   </section>
 
-  <!-- 19 LIMITATIONS -->
+  <!-- 25 -->
   <section class="slide">
-    <h3>Limitations &amp; future work</h3>
-    <h2>Honest edges, clear next steps</h2>
-    <div class="grid g2">
-      <div class="card"><h4>Today (prototype)</h4><small>
-        In-memory audit &amp; exception stores · Graph/Gmail are stubs · single 8B model ·
-        RAGAs is best-effort · mock ERP re-seeds on restart.</small></div>
-      <div class="card"><h4>Next</h4><small>
-        Persist audit/queue to Postgres · real mailbox OAuth · auth &amp; RBAC on the API ·
-        confidence-based auto-approve thresholds · batch/async ingestion at scale ·
-        trace the Ollama extraction spans directly.</small></div>
+    <div class="kicker build">What's next</div>
+    <div class="rows">
+      <div class="r build">Persist the audit &amp; review stores.</div>
+      <div class="r build">Live mailbox OAuth &amp; API auth.</div>
+      <div class="r build">Confidence-based auto-approval thresholds.</div>
     </div>
   </section>
 
-  <!-- 20 CLOSING -->
-  <section class="slide">
-    <div class="kicker">Thank you</div>
-    <h1>Invoices in. <span class="grad">Journals out.</span><br>Humans only where it matters.</h1>
-    <p class="lead">An end-to-end agentic Invoice-to-Payment prototype — the full mandatory stack, all five APIs, human oversight, and measurable quality.</p>
-    <div class="foot"><span>Sudheer Chowdary</span><span class="mono">github.com/sudheerchowdary97/sight-spectrum-ai-agent-automation</span></div>
+  <!-- 26 -->
+  <section class="slide center grad">
+    <h2 class="display build">Invoices in.<br><span class="grad-text">Journals out.</span></h2>
+    <p class="sub build">Humans only where it matters.</p>
+    <p class="tiny build" style="margin-top:5vh">github.com/sudheerchowdary97/sight-spectrum-ai-agent-automation</p>
   </section>
 
 </div>
 
-<div class="hud" id="hud">01 / 20</div>
-<div class="hint">← → / space to navigate · F fullscreen</div>
+<div class="num" id="num">01 / 26</div>
+<div class="tip">← → to navigate · F for fullscreen</div>
 
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
-  const hud = document.getElementById('hud');
-  const progress = document.getElementById('progress');
+  const bar = document.getElementById('bar');
+  const num = document.getElementById('num');
   let i = 0;
   const pad = n => String(n).padStart(2,'0');
   function show(n){
     i = Math.max(0, Math.min(slides.length-1, n));
     slides.forEach((s,x)=>s.classList.toggle('active', x===i));
-    hud.textContent = `${pad(i+1)} / ${pad(slides.length)}`;
-    progress.style.width = ((i+1)/slides.length*100)+'%';
+    num.textContent = `${pad(i+1)} / ${pad(slides.length)}`;
+    bar.style.width = ((i+1)/slides.length*100)+'%';
     location.hash = i+1;
+    // re-trigger staggered build-in animations
+    slides[i].querySelectorAll('.build').forEach((el,x)=>{
+      el.style.animation='none'; void el.offsetWidth;
+      el.style.animation=`rise .66s cubic-bezier(.2,.7,.2,1) ${0.05 + x*0.08}s both`;
+    });
   }
-  function next(){show(i+1)} function prev(){show(i-1)}
+  const next=()=>show(i+1), prev=()=>show(i-1);
   document.addEventListener('keydown', e=>{
-    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();next()}
-    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev()}
-    else if(e.key==='Home'){show(0)} else if(e.key==='End'){show(slides.length-1)}
-    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();next();}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev();}
+    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(slides.length-1);}
+    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
   });
   document.addEventListener('click', e=>{ if(e.clientX < innerWidth*0.28) prev(); else next(); });
   const start = parseInt((location.hash||'').replace('#',''),10);
