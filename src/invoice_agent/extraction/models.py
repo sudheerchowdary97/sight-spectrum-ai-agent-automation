@@ -41,7 +41,9 @@ class ExtractedInvoice(BaseModel):
         ),
     )
     invoice_date: date = Field(description="Invoice date, labelled 'Date:' (YYYY-MM-DD)")
-    due_date: date | None = Field(default=None, description="Due date, labelled 'Due:' (YYYY-MM-DD)")
+    due_date: date | None = Field(
+        default=None, description="Due date, labelled 'Due:' (YYYY-MM-DD)"
+    )
     currency: str = Field(default="USD", description="ISO currency code, e.g. 'USD'")
     lines: list[ExtractedLine] = Field(
         default_factory=list, description="Every row of the line-item table"

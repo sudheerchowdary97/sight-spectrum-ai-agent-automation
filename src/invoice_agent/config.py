@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     ollama_llm_model: str = "llama3.1:8b"
     ollama_embedding_model: str = "nomic-embed-text"
 
+    # --- RAG / PGVector ---
+    pgvector_table: str = "po_embeddings"
+    embed_dim: int = 768  # nomic-embed-text dimensionality
+    retrieval_top_k: int = 5
+
     # --- Arize Phoenix ---
     tracing_enabled: bool = True
     phoenix_collector_endpoint: str = "http://localhost:6006"

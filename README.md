@@ -6,9 +6,10 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–4 complete** — foundation, synthetic data, Mock ERP, email
-> ingestion, and Docling+Ollama extraction. Subsequent tasks build the rest of
-> the agent pipeline. See [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–5 complete** — foundation, synthetic data, Mock ERP, email
+> ingestion, Docling+Ollama extraction, and RAG retrieval (PGVector+LlamaIndex).
+> Subsequent tasks build the rest of the agent pipeline. See
+> [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -145,6 +146,21 @@ docker compose exec api python scripts/extract_invoice.py \
 The CLI prints the validated `Invoice` JSON with a confidence score (based on
 whether line items reconcile to the total) and any warnings. Swap the file for a
 `.png` (scanned) or `.html` to exercise the other document types.
+
+## RAG retrieval (PGVector + LlamaIndex + Ollama)
+
+Task 5 indexes Purchase Orders into PostgreSQL + PGVector (LlamaIndex, Ollama
+embeddings) and retrieves candidate POs for an invoice — robust to fuzzy vendor
+names and missing PO numbers.
+
+```bash
+# Index master POs into PGVector, then test retrieval with fuzzed vendor names
+docker compose exec api python scripts/rag_index_retrieve.py --sample 10
+```
+
+It reports `hit@1` — how often the correct PO is retrieved first despite a
+perturbed vendor name — demonstrating the semantic-retrieval value that feeds
+the matching engine (Task 6).
 
 ## License
 
