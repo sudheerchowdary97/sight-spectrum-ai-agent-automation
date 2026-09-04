@@ -6,10 +6,11 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–13 complete** — full pipeline, all API endpoints, HITL, AR
-> mirror, Phoenix tracing, and the evaluation harness (extraction accuracy, match
-> rate, STP rate, retrieval metrics). Remaining: packaging polish and the deck.
-> See [docs/architecture.md](docs/architecture.md).
+> Status: **complete (Tasks 0–15)** — full agentic Invoice-to-Payment pipeline,
+> all five mandatory API endpoints, human-in-the-loop review, AR mirror, Phoenix
+> tracing, evaluation harness, packaging, and a presentation deck. See
+> [docs/architecture.md](docs/architecture.md) and the deck at
+> [docs/deck/index.html](docs/deck/index.html).
 
 ## Technology stack
 
