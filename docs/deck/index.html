@@ -318,15 +318,15 @@
 
   <!-- 15 EVALUATION -->
   <section class="slide">
-    <h3>Evaluation</h3>
-    <h2>Measured against auto-labelled ground truth</h2>
+    <h3>Evaluation · measured, not asserted</h3>
+    <h2>Results on the labelled dataset <span class="tag">(15 invoices, live run)</span></h2>
     <div class="grid g4">
-      <div class="card"><small>Extraction</small><div class="metric">field-level</div><small class="muted">invoice#, vendor, total, PO, lines</small></div>
-      <div class="card"><small>Matching</small><div class="metric">match &amp; STP</div><small class="muted">rate + classification accuracy</small></div>
-      <div class="card"><small>Retrieval</small><div class="metric acc">hit@1 · MRR</div><small class="muted">RAG candidate PO</small></div>
-      <div class="card"><small>RAGAs</small><div class="metric">precision</div><small class="muted">context precision/recall (opt.)</small></div>
+      <div class="card"><small>Extraction accuracy</small><div class="metric acc">96.0%</div><small class="muted">vendor/total/lines 100% · PO 86.7%</small></div>
+      <div class="card"><small>Retrieval hit@1</small><div class="metric good">100%</div><small class="muted">MRR 1.0 · correct PO first</small></div>
+      <div class="card"><small>STP rate (auto-posted)</small><div class="metric acc">86.7%</div><small class="muted">13 / 15 straight-through</small></div>
+      <div class="card"><small>Match classification</small><div class="metric">80.0%</div><small class="muted">vs ground-truth status</small></div>
     </div>
-    <p class="big" style="margin-top:20px"><code>run_eval.py</code> replays the dataset through the real pipeline and emits <code>evaluation_report.{json,md}</code>.</p>
+    <p class="big" style="margin-top:18px"><code>run_eval.py</code> replays the dataset through the real pipeline → <code>evaluation_report.{json,md}</code>. Also: field-level extraction, RAGAs context precision/recall (best-effort via the Ollama judge).</p>
   </section>
 
   <!-- 16 DEMO -->

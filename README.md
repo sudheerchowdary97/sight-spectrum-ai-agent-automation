@@ -233,7 +233,9 @@ Ollama model as judge; degrades to "unavailable" if not installed).
 - **Docker Compose** — `docker-compose.yml` (one-command `make up`).
 - **OpenAPI / Swagger** — live at `/docs` and `/openapi.json`; a snapshot is
   committed at [`docs/openapi.json`](docs/openapi.json).
-- **Evaluation report** — generated to `data/evaluation_report.{json,md}`.
+- **Evaluation report** — generated to `data/evaluation_report.{json,md}`; a real
+  run is snapshotted at [`docs/evaluation_report.md`](docs/evaluation_report.md)
+  (96% extraction accuracy, 100% retrieval hit@1, 86.7% STP rate).
 - **Architecture** — [`docs/architecture.md`](docs/architecture.md).
 - **Presentation deck** — [`docs/deck/index.html`](docs/deck/index.html)
   (self-contained; open in a browser).
