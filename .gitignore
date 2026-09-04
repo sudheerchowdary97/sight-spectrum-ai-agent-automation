@@ -39,6 +39,6 @@ data/*.json
 .vscode/
 *.swp
 
-# Reference decks (Apple-confidential source material — never commit)
+# Reference decks (external source material — never commit)
 docs/deck/*NPI*.html
 docs/deck/Japan_*.html
