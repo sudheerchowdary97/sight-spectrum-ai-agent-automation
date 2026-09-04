@@ -57,6 +57,10 @@ make install        # editable install + dev/data extras
 make lint test      # ruff + pytest
 ```
 
+> **After changing server code, restart the API:** `docker compose restart api`.
+> On colima, file-change events don't cross the VM mount, so uvicorn `--reload`
+> may not fire. (CLI scripts run fresh each time and need no restart.)
+
 ## API endpoints
 
 | Method | Path                            | Task | Description                         |
