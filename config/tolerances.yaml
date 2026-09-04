@@ -1,0 +1,13 @@
+# Matching tolerance thresholds (Task 6).
+# These defaults mirror invoice_agent.config.Settings and can be overridden per
+# vendor. A variance within tolerance is auto-approved; outside → exception.
+
+defaults:
+  price_tolerance_pct: 0.02   # ±2% unit-price variance allowed
+  qty_tolerance_pct: 0.0      # quantities must match exactly
+  amount_tolerance_abs: 1.00  # absolute total rounding allowance (currency units)
+
+# Optional per-vendor overrides, keyed by vendor_id.
+vendors: {}
+  # V-1001:
+  #   price_tolerance_pct: 0.05

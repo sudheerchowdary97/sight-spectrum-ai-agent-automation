@@ -1,0 +1,64 @@
+# Agentic Invoice-to-Payment Automation — developer workflow.
+# Usage: `make <target>`. Docker (Python 3.12) is the canonical runtime.
+
+.DEFAULT_GOAL := help
+COMPOSE := docker compose
+
+.PHONY: help
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+
+# ─── Local dev (host Python) ────────────────────────────────────────────────
+.PHONY: install
+install: ## Install package + dev/data extras into the active venv
+	pip install -e ".[dev,data]"
+
+.PHONY: lint
+lint: ## Run ruff lint
+	ruff check src tests
+
+.PHONY: format
+format: ## Auto-format with ruff
+	ruff format src tests && ruff check --fix src tests
+
+.PHONY: typecheck
+typecheck: ## Run mypy
+	mypy src
+
+.PHONY: test
+test: ## Run the test suite
+	pytest
+
+# ─── Docker Compose stack ───────────────────────────────────────────────────
+.PHONY: up
+up: ## Build & start the full stack (detached)
+	$(COMPOSE) up -d --build
+
+.PHONY: down
+down: ## Stop the stack
+	$(COMPOSE) down
+
+.PHONY: logs
+logs: ## Tail logs from all services
+	$(COMPOSE) logs -f
+
+.PHONY: ps
+ps: ## Show running services
+	$(COMPOSE) ps
+
+.PHONY: ollama-pull
+ollama-pull: ## Pull the required Ollama models into the running container
+	$(COMPOSE) exec ollama ollama pull llama3.1:8b
+	$(COMPOSE) exec ollama ollama pull nomic-embed-text
+
+# ─── Data (Task 1) ──────────────────────────────────────────────────────────
+.PHONY: data
+data: ## Generate synthetic invoices, PO/GR master data, and ground truth
+	python scripts/generate_synthetic_data.py
+
+.PHONY: clean
+clean: ## Remove caches and generated data
+	rm -rf .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage
+	rm -rf data/inbox data/master data/generated data/ground_truth.json
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +
