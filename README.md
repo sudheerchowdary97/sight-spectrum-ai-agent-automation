@@ -6,11 +6,11 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–6 complete** — foundation, synthetic data, Mock ERP, email
-> ingestion, Docling+Ollama extraction, RAG retrieval (PGVector+LlamaIndex), and
-> the 2-way/3-way matching engine. Subsequent tasks add orchestration,
-> posting, audit, observability, evaluation. See
-> [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–7 complete** — foundation, synthetic data, Mock ERP,
+> ingestion, extraction, RAG retrieval, matching, and the LangGraph agent
+> orchestration (ingest → extract → match → post/escalate → audit). Remaining:
+> HITL, posting endpoint, AR mirror, audit log, observability, evaluation,
+> packaging. See [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -162,6 +162,19 @@ docker compose exec api python scripts/rag_index_retrieve.py --sample 10
 It reports `hit@1` — how often the correct PO is retrieved first despite a
 perturbed vendor name — demonstrating the semantic-retrieval value that feeds
 the matching engine (Task 6).
+
+## Running the full agent (LangGraph)
+
+Task 7 wires everything into one agentic state machine — `ingest → extract →
+match → (post | escalate) → audit`:
+
+```bash
+docker compose exec api python scripts/run_agent.py --limit 5
+```
+
+For each invoice it prints the match status, the decision (`posted` /
+`escalated` / `duplicate`), the posted journal id, and the audit trail. Clean
+matches auto-post a Payment Journal to the ERP; exceptions route to escalation.
 
 ## License
 
