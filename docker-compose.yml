@@ -54,6 +54,10 @@ services:
       POSTGRES_HOST: postgres
     ports:
       - "8001:8001"
+    volumes:
+      # Read master data seeded by the generator (shared with the api service).
+      - ./data:/app/data
+      - ./src:/app/src
     depends_on:
       postgres:
         condition: service_healthy
