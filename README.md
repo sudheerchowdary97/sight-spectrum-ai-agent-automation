@@ -6,10 +6,10 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–12 complete** — full pipeline, all five API endpoints,
-> human-in-the-loop review, AR mirror, and Arize Phoenix tracing. Remaining:
-> evaluation (RAGAs + metrics), packaging, and the deck. See
-> [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–13 complete** — full pipeline, all API endpoints, HITL, AR
+> mirror, Phoenix tracing, and the evaluation harness (extraction accuracy, match
+> rate, STP rate, retrieval metrics). Remaining: packaging polish and the deck.
+> See [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -208,6 +208,20 @@ docker compose exec api python scripts/run_agent.py --limit 3   # generate trace
 
 Setup never fails the pipeline — if the collector or libraries are absent it
 degrades to a no-op.
+
+## Evaluation
+
+Run the pipeline over the labelled dataset and score it against
+`ground_truth.json`:
+
+```bash
+docker compose exec api python scripts/run_eval.py --limit 20
+```
+
+Writes `data/evaluation_report.{json,md}` and prints:
+- **Extraction accuracy** — field-level (invoice #, vendor, total, PO, line count)
+- **Matching** — classification accuracy vs ground truth, match rate, **STP rate**
+- **Retrieval** — RAG candidate-PO `hit@1` and MRR
 
 ## License
 
