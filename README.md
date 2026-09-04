@@ -6,9 +6,9 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–3 complete** — foundation, synthetic data generator, Mock
-> ERP, and email ingestion. Subsequent tasks build the agent pipeline on top.
-> See [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–4 complete** — foundation, synthetic data, Mock ERP, email
+> ingestion, and Docling+Ollama extraction. Subsequent tasks build the rest of
+> the agent pipeline. See [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -122,6 +122,29 @@ summary.json       dataset statistics (counts, scenario mix, expected STP rate)
 Scenario mix (auto-labelled): clean match, price variance, qty variance,
 partial, missing-PO, duplicate — plus fuzzy vendor-name variants to exercise
 semantic retrieval.
+
+## Running extraction (Docling + Ollama)
+
+Field extraction (Task 4) runs **Docling** (document → text, with OCR for scans)
+and a local **Ollama** LLM (text → structured invoice JSON). These require
+**Python ≤3.12** and a running Ollama, so run them via Docker:
+
+```bash
+# 1) Start the stack and pull the model
+make up
+make ollama-pull                       # llama3.1:8b + nomic-embed-text
+
+# 2) Generate data (if not already done)
+docker compose exec api python scripts/generate_synthetic_data.py --out data
+
+# 3) Extract a single invoice end-to-end (ingest → Docling → Ollama → Invoice)
+docker compose exec api python scripts/extract_invoice.py \
+    data/generated/invoices/INV-00002.pdf
+```
+
+The CLI prints the validated `Invoice` JSON with a confidence score (based on
+whether line items reconcile to the total) and any warnings. Swap the file for a
+`.png` (scanned) or `.html` to exercise the other document types.
 
 ## License
 
