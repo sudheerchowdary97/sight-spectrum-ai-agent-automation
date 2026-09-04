@@ -1,340 +1,491 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light" data-font="sf-pro" data-transition="scale">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Agentic Invoice-to-Payment — Keynote</title>
+<title>Agentic Invoice-to-Payment — Presentation</title>
 <style>
   :root{
-    --ink:#f5f5f7; --gray:#a1a1a6; --dim:#6e6e73;
-    --line:rgba(255,255,255,.14);
-    --grad:linear-gradient(90deg,#2997ff 0%,#a855f7 50%,#ff2d55 100%);
-    --sans:-apple-system,"SF Pro Display","SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --white:#fff;--bg-light:#fafafa;--bg-main:#fff;
+    --text-black:#1d1d1f;--text-gray:#6e6e73;--text-light:#86868b;
+    --blue:#007aff;--green:#34c759;--orange:#ff9500;--purple:#af52de;--red:#ff3b30;--teal:#5ac8fa;
+    --border:#e5e5e5;--card-bg:#f5f5f7;
+    --font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
   }
-  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-  html,body{margin:0;height:100%;background:#000}
-  body{font-family:var(--sans);color:var(--ink);overflow:hidden}
-  .deck{position:fixed;inset:0}
-  .slide{
-    position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
-    padding:8vh 9vw;background:#000;
+  [data-theme="dark"]{
+    --white:#1d1d1f;--bg-light:#2d2d2f;--bg-main:#000;
+    --text-black:#f5f5f7;--text-gray:#a1a1a6;--text-light:#86868b;
+    --blue:#2997ff;--border:#424245;--card-bg:#2d2d2f;
   }
-  .slide.active{display:flex}
-  .slide.light{background:#f5f5f7;color:#1d1d1f}
-  .slide.grad{background:radial-gradient(120% 120% at 50% 0%,#101124,#000 70%)}
-  .slide.center{align-items:center;text-align:center}
+  [data-font="helvetica"]{--font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;}
+  [data-font="georgia"]{--font-family:Georgia,serif;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{font-family:var(--font-family);background:var(--bg-main);color:var(--text-black)}
 
-  .kicker{font-size:clamp(13px,1.4vw,17px);letter-spacing:.32em;text-transform:uppercase;color:var(--gray);font-weight:600;margin-bottom:2.2vh}
-  .display{font-size:clamp(40px,7.4vw,104px);font-weight:700;line-height:1.02;letter-spacing:-.03em;margin:0}
-  .headline{font-size:clamp(32px,5.2vw,76px);font-weight:700;line-height:1.05;letter-spacing:-.025em;margin:0}
-  .sub{font-size:clamp(18px,2.2vw,30px);color:var(--gray);font-weight:400;line-height:1.4;margin-top:2.4vh;max-width:24ch}
-  .slide.center .sub{max-width:30ch}
-  .light .sub{color:#6e6e73}
-  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .tiny{font-size:clamp(12px,1.2vw,15px);color:var(--dim);letter-spacing:.02em}
+  /* chrome */
+  .chrome-btn{position:fixed;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);cursor:pointer;z-index:200;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1);color:var(--text-black);transition:transform .2s}
+  .chrome-btn:hover{transform:scale(1.06)}
+  .chrome-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .chrome-btn.marker.active{background:var(--red);border-color:var(--red)}
+  .chrome-btn.fs.active{background:var(--green);border-color:var(--green)}
+  .sidebar-toggle{top:16px;left:16px}.marker-toggle{top:16px;left:66px}
+  .fullscreen-toggle{top:16px;left:116px}.settings-toggle{top:16px;right:16px}
 
-  .rows{margin-top:3vh;display:flex;flex-direction:column;gap:1.6vh}
-  .rows .r{font-size:clamp(20px,2.6vw,38px);font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-  .light .rows .r{color:#1d1d1f}
-  .rows .r span{color:var(--gray);font-weight:400}
+  .settings-panel{position:fixed;top:64px;right:16px;width:240px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;z-index:200;display:none;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+  .settings-panel.active{display:block}
+  .settings-panel h3{font-size:14px;font-weight:600;margin-bottom:16px}
+  .settings-section{margin-bottom:16px}
+  .settings-label{font-size:11px;font-weight:600;color:var(--text-light);text-transform:uppercase;margin-bottom:8px;display:block;letter-spacing:.05em}
+  .row-btns{display:flex;gap:8px}
+  .opt{flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);background:var(--card-bg);cursor:pointer;font-size:13px;color:var(--text-black)}
+  .opt.active{border-color:var(--blue);background:rgba(0,122,255,.1);color:var(--blue)}
+  .setting-select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);font-size:14px;color:var(--text-black)}
 
-  .flowline{display:flex;flex-wrap:wrap;gap:14px 10px;align-items:center;margin-top:4vh}
-  .step{font-size:clamp(16px,1.9vw,26px);font-weight:600}
-  .sep{color:#3a3a3c;font-size:clamp(18px,2vw,26px)}
-  .accent{color:#2997ff}
+  .red-dot{position:fixed;width:16px;height:16px;background:var(--red);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 10px rgba(255,59,48,.6);display:none}
+  body.marker-mode{cursor:none}.marker-mode .red-dot{display:block}
 
-  .wall{display:flex;flex-wrap:wrap;gap:6vw;margin-top:2vh}
-  .stat{display:flex;flex-direction:column}
-  .stat .n{font-size:clamp(52px,10vw,140px);font-weight:700;letter-spacing:-.04em;line-height:.9}
-  .stat .l{font-size:clamp(14px,1.5vw,20px);color:var(--gray);margin-top:1.4vh;font-weight:500}
+  /* layout */
+  .wrap{display:flex;height:100vh;overflow:hidden}
+  .sidebar{width:280px;min-width:280px;background:var(--bg-light);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh}
+  .sidebar.hidden{display:none}
+  .sidebar-header{padding:20px;padding-top:70px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+  .sidebar-header svg{width:20px;height:24px;fill:var(--text-black)}
+  .sidebar-header h1{font-size:14px;font-weight:600}
+  .outline{flex:1;overflow-y:auto;padding:12px 0}
+  .outline-sec{font-size:10px;font-weight:600;color:var(--text-light);text-transform:uppercase;padding:8px 20px;letter-spacing:.05em}
+  .outline-item{display:flex;align-items:center;padding:9px 20px;cursor:pointer;border-left:3px solid transparent}
+  .outline-item:hover{background:rgba(0,0,0,.03)}
+  .outline-item.active{background:rgba(0,122,255,.08);border-left-color:var(--blue)}
+  .outline-item .n{font-size:11px;color:var(--text-light);width:26px}
+  .outline-item .t{font-size:13px;flex:1}
+  .outline-item.active .t{color:var(--blue);font-weight:500}
 
-  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:3.5vh;max-width:60vw}
-  .slide.center .chips{justify-content:center}
-  .chip{border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:clamp(14px,1.5vw,19px);color:var(--ink);font-weight:500}
-  .chip b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .main{flex:1;overflow:hidden;background:var(--bg-main);position:relative}
+  .progress{position:absolute;top:0;left:0;right:0;height:3px;background:var(--border);z-index:100}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));width:0;transition:width .4s cubic-bezier(.4,0,.2,1)}
 
-  table{border-collapse:collapse;margin-top:3vh;font-size:clamp(15px,1.7vw,24px);width:100%;max-width:60vw}
-  td,th{padding:12px 16px;border-bottom:1px solid var(--line);text-align:left}
-  th{color:var(--gray);font-weight:600;font-size:.7em;letter-spacing:.08em;text-transform:uppercase}
-  .ok{color:#30d158;font-weight:600}.ex{color:#ff9f0a;font-weight:600}
-  .mono{font-family:var(--mono)}
+  .stage{position:absolute;inset:0}
+  .slide{display:none;width:1400px;height:900px;padding:120px 80px 80px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center center;overflow:hidden;background:var(--bg-main)}
+  .slide.active{display:flex;flex-direction:column;justify-content:center}
+  [data-transition="scale"] .slide.active{animation:scaleUp .45s cubic-bezier(.25,.46,.45,.94)}
+  [data-transition="slide"] .slide.active{animation:slideIn .5s cubic-bezier(.25,.46,.45,.94)}
+  @keyframes scaleUp{from{opacity:0}to{opacity:1}}
+  @keyframes slideIn{from{opacity:0;transform:translate(-50%,-50%) translateX(50px)}to{opacity:1;transform:translate(-50%,-50%)}}
 
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4vh 6vw;margin-top:3vh;max-width:70vw}
-  .grid2 h4{font-size:clamp(18px,2vw,26px);margin:0 0 .5em;font-weight:650}
-  .grid2 p{font-size:clamp(15px,1.6vw,21px);color:var(--gray);margin:0;line-height:1.45}
+  .animate-on-appear{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .animate-on-appear.visible{opacity:1;transform:none}
+  .auto-stagger>.animate-on-appear:nth-child(1){transition-delay:.05s}
+  .auto-stagger>.animate-on-appear:nth-child(2){transition-delay:.16s}
+  .auto-stagger>.animate-on-appear:nth-child(3){transition-delay:.27s}
+  .auto-stagger>.animate-on-appear:nth-child(4){transition-delay:.38s}
+  .auto-stagger>.animate-on-appear:nth-child(5){transition-delay:.49s}
+  .auto-stagger>.animate-on-appear:nth-child(6){transition-delay:.60s}
+  .animations-off .animate-on-appear{transition:none!important;opacity:1!important;transform:none!important}
 
-  /* build-in animation */
-  .build{opacity:0;will-change:transform,opacity}
-  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .gradient-text{background:linear-gradient(90deg,#2997ff,#64d2ff,#af52de,#2997ff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:gmove 5s linear infinite}
+  @keyframes gmove{to{background-position:200% center}}
 
-  .bar{position:fixed;top:0;left:0;height:2px;background:var(--grad);width:0;transition:width .4s ease;z-index:20}
-  .num{position:fixed;bottom:18px;right:22px;color:var(--dim);font-size:12px;font-family:var(--mono);z-index:20;letter-spacing:.1em}
-  .light ~ .num{color:#8a8a8e}
-  .tip{position:fixed;bottom:18px;left:22px;color:var(--dim);font-size:11px;z-index:20;letter-spacing:.06em}
-  .foot{position:absolute;left:9vw;right:9vw;bottom:5vh;display:flex;justify-content:space-between;color:var(--dim);font-size:clamp(12px,1.2vw,15px)}
+  .slide-header{position:absolute;top:40px;left:80px;right:80px;display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--border)}
+  .slide-header .hl{display:flex;align-items:center;gap:16px}
+  .slide-header svg{width:26px;height:30px;fill:var(--blue)}
+  .slide-header h2{font-size:34px;font-weight:600;letter-spacing:-.5px}
+  .slide-header .sub{font-size:13px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .slide-footer{position:absolute;bottom:32px;left:80px;right:140px;display:flex;justify-content:space-between;font-size:13px;color:var(--text-light)}
+  .caption{font-size:17px;color:var(--text-gray);margin-bottom:14px}
+
+  h1.title{font-size:82px;font-weight:700;letter-spacing:-2px;line-height:1.03}
+  .lead{font-size:26px;color:var(--text-gray);margin-top:24px;max-width:30ch;line-height:1.4}
+  .big-statement{font-size:56px;font-weight:700;letter-spacing:-1px;line-height:1.08}
+  .rows{display:flex;flex-direction:column;gap:22px;margin-top:10px}
+  .rows .r{font-size:32px;font-weight:600;letter-spacing:-.3px}
+  .rows .r span{color:var(--text-gray);font-weight:400}
+
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+  .chip{border:1px solid var(--border);background:var(--card-bg);border-radius:999px;padding:11px 20px;font-size:19px;font-weight:500}
+  .chip b{color:var(--blue)}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .node{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:14px 20px;font-size:22px;font-weight:600}
+  .node.k{border-color:var(--blue);color:var(--blue)}
+  .arw{color:var(--text-light);font-size:24px}
+
+  .stats-row{display:flex;justify-content:center;gap:90px;margin:30px 0}
+  .stat{text-align:center}
+  .stat .v{font-size:104px;font-weight:700;letter-spacing:-3px;line-height:.95}
+  .stat .l{font-size:17px;color:var(--text-gray);margin-top:10px;text-transform:uppercase;letter-spacing:.04em}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px}
+  .card{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:28px 30px}
+  .card h4{font-size:24px;font-weight:650;margin-bottom:10px}
+  .card p{font-size:19px;color:var(--text-gray);line-height:1.45}
+
+  table.tbl{width:100%;border-collapse:collapse;font-size:22px;margin-top:6px}
+  table.tbl th,table.tbl td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--border)}
+  table.tbl th{color:var(--text-light);font-size:.62em;text-transform:uppercase;letter-spacing:.08em}
+  .ok{color:var(--green);font-weight:600}.ex{color:var(--orange);font-weight:600}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .cmd{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:26px 30px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:22px;line-height:2}
+  .cmd .c{color:var(--text-light)}
 </style>
 </head>
 <body>
-<div class="bar" id="bar"></div>
-<div class="deck" id="deck">
+<!-- chrome -->
+<div class="chrome-btn sidebar-toggle active" title="Outline (S)" onclick="toggleSidebar()">☰</div>
+<div class="chrome-btn marker marker-toggle" title="Laser (M)" onclick="toggleMarker()">•</div>
+<div class="chrome-btn fs fullscreen-toggle" title="Fullscreen (F)" onclick="toggleFs()">⤢</div>
+<div class="chrome-btn settings-toggle" title="Settings" onclick="toggleSettings()">⚙</div>
+<div class="red-dot" id="reddot"></div>
 
-  <!-- 1 -->
-  <section class="slide center grad">
-    <div class="kicker build">AI Engineer · Technical Assignment</div>
-    <h1 class="display build">Invoice&#8209;to&#8209;Payment.<br><span class="grad-text">Automated.</span></h1>
-    <p class="sub build">An AI agent that reads invoices, matches them to purchase orders, and posts payments — with human oversight where it counts.</p>
-  </section>
-
-  <!-- 2 -->
-  <section class="slide">
-    <div class="kicker build">The problem</div>
-    <h2 class="headline build">Accounts Payable<br>still runs on <span class="grad-text">manual effort.</span></h2>
-  </section>
-
-  <!-- 3 -->
-  <section class="slide">
-    <div class="rows">
-      <div class="r build">Invoices arrive as PDFs, scans, and email. <span>— no schema.</span></div>
-      <div class="r build">Every one is matched to a PO by hand. <span>— line by line.</span></div>
-      <div class="r build">Variances and duplicates need judgement. <span>— and an audit trail.</span></div>
-    </div>
-  </section>
-
-  <!-- 4 -->
-  <section class="slide center">
-    <div class="kicker build">The idea</div>
-    <h2 class="display build">Meet the agent.</h2>
-    <p class="sub build">It does the reconciliation. People handle the exceptions.</p>
-  </section>
-
-  <!-- 5 -->
-  <section class="slide">
-    <div class="kicker build">The flow</div>
-    <div class="flowline">
-      <span class="step build">Ingest</span><span class="sep build">→</span>
-      <span class="step build">Extract</span><span class="sep build">→</span>
-      <span class="step build">Match</span><span class="sep build">→</span>
-      <span class="step build accent">Post</span><span class="sep build">/</span>
-      <span class="step build accent">Escalate</span><span class="sep build">→</span>
-      <span class="step build">Audit</span>
-    </div>
-    <p class="sub build">One pipeline, end to end — mirrored for AR remittances.</p>
-  </section>
-
-  <!-- 6 -->
-  <section class="slide">
-    <div class="kicker build">Foundations</div>
-    <h2 class="headline build">Built on a proven stack.</h2>
-    <div class="chips">
-      <span class="chip build"><b>Docling</b> document AI</span>
-      <span class="chip build"><b>PGVector</b> + <b>LlamaIndex</b></span>
-      <span class="chip build"><b>LangGraph</b> orchestration</span>
-      <span class="chip build"><b>Ollama</b> local LLM</span>
-      <span class="chip build"><b>Phoenix</b> observability</span>
-      <span class="chip build"><b>RAGAs</b> evaluation</span>
-      <span class="chip build"><b>FastAPI</b> · <b>Docker</b></span>
-    </div>
-  </section>
-
-  <!-- 7 -->
-  <section class="slide">
-    <div class="kicker build">Architecture</div>
-    <h2 class="headline build">Five services. One command.</h2>
-    <div class="flowline build">
-      <span class="chip">Agent API</span><span class="sep">·</span>
-      <span class="chip">Mock ERP</span><span class="sep">·</span>
-      <span class="chip">Postgres + PGVector</span><span class="sep">·</span>
-      <span class="chip">Ollama</span><span class="sep">·</span>
-      <span class="chip">Phoenix</span>
-    </div>
-    <p class="sub build">The agent orchestrates; Docling parses; Ollama reasons; LlamaIndex retrieves; the ERP posts; Phoenix watches.</p>
-  </section>
-
-  <!-- 8 -->
-  <section class="slide center light">
-    <div class="kicker build" style="color:#6e6e73">Data</div>
-    <h2 class="display build">Data you can trust.</h2>
-    <p class="sub build">A seeded generator builds invoices from real POs across every scenario — each one self-labelled for evaluation.</p>
-  </section>
-
-  <!-- 9 -->
-  <section class="slide">
-    <div class="kicker build">Ingestion</div>
-    <h2 class="headline build">Read the mailbox.<br><span class="grad-text">Any format.</span></h2>
-    <p class="sub build">Provider-abstracted intake — Microsoft Graph, Gmail, or folder replay — extracting, classifying, and de-duplicating every attachment.</p>
-  </section>
-
-  <!-- 10 -->
-  <section class="slide">
-    <div class="kicker build">Extraction</div>
-    <h2 class="headline build">Turn a document<br>into <span class="grad-text">structured data.</span></h2>
-    <p class="sub build">Docling parses; a local LLM returns schema-validated fields; a deterministic backstop recovers what the model misses.</p>
-  </section>
-
-  <!-- 11 -->
-  <section class="slide center grad">
-    <h2 class="display build">It reads scans, too.</h2>
-    <p class="sub build">Born-digital PDFs use the text layer. Image-only scans fall back to OCR — automatically.</p>
-  </section>
-
-  <!-- 12 -->
-  <section class="slide">
-    <div class="kicker build">Retrieval</div>
-    <h2 class="headline build">Find the right PO —<br>even when the invoice is <span class="grad-text">messy.</span></h2>
-    <p class="sub build">Semantic search over PO embeddings in PGVector shrugs off fuzzy vendor names and missing PO numbers.</p>
-  </section>
-
-  <!-- 13 -->
-  <section class="slide center">
-    <div class="wall build" style="justify-content:center">
-      <div class="stat"><div class="n grad-text">100%</div><div class="l">retrieval hit@1 · MRR 1.0</div></div>
-    </div>
-    <p class="sub build">The correct purchase order, ranked first — every time, across fuzzed-vendor tests.</p>
-  </section>
-
-  <!-- 14 -->
-  <section class="slide">
-    <div class="kicker build">Matching</div>
-    <h2 class="headline build">2&#8209;way. 3&#8209;way.<br>Tolerant by design.</h2>
-    <p class="sub build">Line-level comparison against PO and Goods Receipt, with configurable price and quantity tolerances.</p>
-  </section>
-
-  <!-- 15 -->
-  <section class="slide">
-    <div class="kicker build">Orchestration</div>
-    <h2 class="headline build">One graph.<br>Every step.</h2>
-    <p class="sub build">A LangGraph state machine routes clean matches to auto-posting and everything else to a human — accumulating an audit trail along the way.</p>
-  </section>
-
-  <!-- 16 -->
-  <section class="slide center light">
-    <div class="kicker build" style="color:#6e6e73">Human-in-the-loop</div>
-    <h2 class="display build">Automation with<br>a safety net.</h2>
-    <p class="sub build">Exceptions queue for review. Approve to post the journal. Reject to close. Always audited.</p>
-  </section>
-
-  <!-- 17 -->
-  <section class="slide">
-    <div class="kicker build">Closing the loop</div>
-    <h2 class="headline build">Both directions.</h2>
-    <div class="grid2">
-      <div class="build"><h4>Payable</h4><p>Post an approved invoice as a Payment Journal — idempotent, so duplicates never pay twice.</p></div>
-      <div class="build"><h4>Receivable</h4><p>Match inbound remittances to open AR items and apply cash — full, partial, or overpaid.</p></div>
-    </div>
-  </section>
-
-  <!-- 18 -->
-  <section class="slide">
-    <div class="kicker build">Trust</div>
-    <h2 class="headline build">Every decision,<br><span class="grad-text">traceable.</span></h2>
-    <p class="sub build">One audit record per step, correlated across a run and linked back to the source email.</p>
-  </section>
-
-  <!-- 19 -->
-  <section class="slide">
-    <div class="kicker build">Observability</div>
-    <h2 class="headline build">See inside the agent.</h2>
-    <p class="sub build">OpenTelemetry traces stream to Arize Phoenix — the retrieval and reasoning steps, visible.</p>
-  </section>
-
-  <!-- 20 -->
-  <section class="slide center">
-    <div class="kicker build">Evaluation</div>
-    <h2 class="display build">How good is it?</h2>
-    <p class="sub build">Measured against auto-labelled ground truth — not asserted.</p>
-  </section>
-
-  <!-- 21 -->
-  <section class="slide center">
-    <div class="wall build">
-      <div class="stat"><div class="n grad-text">96%</div><div class="l">extraction accuracy</div></div>
-      <div class="stat"><div class="n grad-text">100%</div><div class="l">retrieval hit@1</div></div>
-      <div class="stat"><div class="n grad-text">87%</div><div class="l">straight-through rate</div></div>
-    </div>
-    <p class="tiny build" style="margin-top:4vh">Live run · 15 invoices · Docling + Ollama llama3.1:8b + PGVector + ERP</p>
-  </section>
-
-  <!-- 22 -->
-  <section class="slide">
-    <div class="kicker build">Live run</div>
-    <h2 class="headline build">Four posted. One escalated.</h2>
-    <table class="build">
-      <tr><th>Invoice</th><th>Match</th><th>Decision</th><th>Journal</th></tr>
-      <tr><td>PO-10001</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000001</td></tr>
-      <tr><td>90002 · scan</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000002</td></tr>
-      <tr><td>90003</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000003</td></tr>
-      <tr><td>90004</td><td class="ex">qty variance</td><td class="ex">escalated</td><td>—</td></tr>
-      <tr><td>90005</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000004</td></tr>
-    </table>
-  </section>
-
-  <!-- 23 -->
-  <section class="slide">
-    <div class="kicker build">Choices that matter</div>
-    <div class="rows">
-      <div class="r build">Text layer for digital PDFs. <span>OCR only for scans.</span></div>
-      <div class="r build">A durable review queue. <span>Not a paused process.</span></div>
-      <div class="r build">One schema, shared everywhere. <span>Swap the mock ERP for real.</span></div>
-    </div>
-  </section>
-
-  <!-- 24 -->
-  <section class="slide center light">
-    <div class="kicker build" style="color:#6e6e73">Deployment</div>
-    <h2 class="display build">Ship it.</h2>
-    <p class="sub build mono" style="font-size:clamp(15px,1.7vw,22px)">make up · make ollama-pull · make agent · make eval</p>
-  </section>
-
-  <!-- 25 -->
-  <section class="slide">
-    <div class="kicker build">What's next</div>
-    <div class="rows">
-      <div class="r build">Persist the audit &amp; review stores.</div>
-      <div class="r build">Live mailbox OAuth &amp; API auth.</div>
-      <div class="r build">Confidence-based auto-approval thresholds.</div>
-    </div>
-  </section>
-
-  <!-- 26 -->
-  <section class="slide center grad">
-    <h2 class="display build">Invoices in.<br><span class="grad-text">Journals out.</span></h2>
-    <p class="sub build">Humans only where it matters.</p>
-    <p class="tiny build" style="margin-top:5vh">github.com/sudheerchowdary97/sight-spectrum-ai-agent-automation</p>
-  </section>
-
+<div class="settings-panel" id="settings">
+  <h3>Presentation settings</h3>
+  <div class="settings-section"><span class="settings-label">Theme</span>
+    <div class="row-btns"><div class="opt" data-theme-opt="light" onclick="setTheme('light')">Light</div><div class="opt" data-theme-opt="dark" onclick="setTheme('dark')">Dark</div></div>
+  </div>
+  <div class="settings-section"><span class="settings-label">Font</span>
+    <select class="setting-select" onchange="document.documentElement.dataset.font=this.value">
+      <option value="sf-pro">SF Pro</option><option value="helvetica">Helvetica Neue</option><option value="georgia">Georgia</option>
+    </select>
+  </div>
+  <div class="settings-section"><span class="settings-label">Transition</span>
+    <select class="setting-select" onchange="document.documentElement.dataset.transition=this.value">
+      <option value="scale">Scale</option><option value="slide">Slide</option><option value="none">None</option>
+    </select>
+  </div>
+  <div class="settings-section"><span class="settings-label">Animations</span>
+    <div class="row-btns"><div class="opt active" data-anim="on" onclick="setAnim(true)">On</div><div class="opt" data-anim="off" onclick="setAnim(false)">Off</div></div>
+  </div>
 </div>
 
-<div class="num" id="num">01 / 26</div>
-<div class="tip">← → to navigate · F for fullscreen</div>
+<div class="wrap">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <svg viewBox="0 0 20 24"><rect x="1" y="1" width="18" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.6"/><line x1="5" y1="17" x2="11" y2="17" stroke="currentColor" stroke-width="1.6"/></svg>
+      <h1>Invoice-to-Payment</h1>
+    </div>
+    <div class="outline" id="outline"></div>
+  </aside>
+
+  <main class="main">
+    <div class="progress"><div class="progress-fill" id="fill"></div></div>
+    <div class="stage" id="stage">
+
+      <!-- 1 TITLE -->
+      <section class="slide" data-sec="Overview" data-title="Title">
+        <div class="auto-stagger">
+          <div class="caption animate-on-appear">AI Engineer · Technical Assignment</div>
+          <h1 class="title animate-on-appear">Invoice-to-Payment.<br><span class="gradient-text">Automated.</span></h1>
+          <p class="lead animate-on-appear">An AI agent that reads invoices from a mailbox, matches them to purchase orders, and posts payments — with human oversight for exceptions.</p>
+          <div class="chips animate-on-appear" style="margin-top:28px">
+            <span class="chip"><b>Docling</b></span><span class="chip"><b>PGVector</b> + <b>LlamaIndex</b></span>
+            <span class="chip"><b>LangGraph</b></span><span class="chip"><b>Ollama</b></span><span class="chip"><b>Phoenix</b></span>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>Sudheer Chowdary</span></div>
+      </section>
+
+      <!-- 2 PROBLEM -->
+      <section class="slide" data-sec="Overview" data-title="The problem">
+        <div class="slide-header"><div class="hl"><svg viewBox="0 0 20 24"><rect x="1" y="1" width="18" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><h2>The problem</h2></div><span class="sub">Accounts Payable</span></div>
+        <div class="auto-stagger">
+          <p class="caption animate-on-appear">Today, in most finance teams…</p>
+          <h3 class="big-statement animate-on-appear">AP still runs on <span class="gradient-text">manual effort.</span></h3>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>02</span></div>
+      </section>
+
+      <!-- 3 PAIN -->
+      <section class="slide" data-sec="Overview" data-title="Why it's hard">
+        <div class="slide-header"><div class="hl"><h2>Three points of friction</h2></div><span class="sub">The problem</span></div>
+        <div class="rows auto-stagger">
+          <div class="r animate-on-appear">Invoices arrive as PDFs, scans &amp; HTML. <span>— no schema.</span></div>
+          <div class="r animate-on-appear">Each is matched to a PO by hand. <span>— line by line.</span></div>
+          <div class="r animate-on-appear">Variances &amp; duplicates need judgement. <span>— and an audit trail.</span></div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>03</span></div>
+      </section>
+
+      <!-- 4 FLOW -->
+      <section class="slide" data-sec="Overview" data-title="The workflow">
+        <div class="slide-header"><div class="hl"><h2>One agentic workflow</h2></div><span class="sub">Solution</span></div>
+        <div class="auto-stagger">
+          <div class="flow animate-on-appear">
+            <span class="node">Ingest</span><span class="arw">→</span><span class="node">Extract</span><span class="arw">→</span>
+            <span class="node">Match</span><span class="arw">→</span><span class="node k">Post</span><span class="arw">/</span>
+            <span class="node k">Escalate</span><span class="arw">→</span><span class="node">Audit</span>
+          </div>
+          <p class="lead animate-on-appear" style="max-width:40ch">Straight-through when confident; human-in-the-loop when not. Mirrored for AR remittances.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>04</span></div>
+      </section>
+
+      <!-- 5 ARCH -->
+      <section class="slide" data-sec="Overview" data-title="Architecture">
+        <div class="slide-header"><div class="hl"><h2>Five services, one command</h2></div><span class="sub">Architecture</span></div>
+        <div class="auto-stagger">
+          <div class="chips animate-on-appear">
+            <span class="chip">Agent API · FastAPI</span><span class="chip">Mock ERP</span>
+            <span class="chip">Postgres + PGVector</span><span class="chip">Ollama</span><span class="chip">Phoenix</span>
+          </div>
+          <p class="lead animate-on-appear" style="max-width:42ch">The agent orchestrates; Docling parses; Ollama reasons; LlamaIndex retrieves; the ERP posts; Phoenix observes.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>05</span></div>
+      </section>
+
+      <!-- 6 STACK -->
+      <section class="slide" data-sec="Overview" data-title="Tech stack">
+        <div class="slide-header"><div class="hl"><h2>Built on the required stack</h2></div><span class="sub">Foundations</span></div>
+        <table class="tbl animate-on-appear">
+          <tr><th>Layer</th><th>Technology</th><th>Layer</th><th>Technology</th></tr>
+          <tr><td>Ingestion</td><td>Graph / Gmail</td><td>Orchestration</td><td>LangGraph</td></tr>
+          <tr><td>Doc processing</td><td>Docling</td><td>LLM</td><td>Ollama</td></tr>
+          <tr><td>Vector DB</td><td>PGVector</td><td>Observability</td><td>Phoenix</td></tr>
+          <tr><td>RAG</td><td>LlamaIndex</td><td>Evaluation</td><td>RAGAs + metrics</td></tr>
+        </table>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>06</span></div>
+      </section>
+
+      <!-- 7 DATA -->
+      <section class="slide" data-sec="Pipeline" data-title="Data">
+        <div class="slide-header"><div class="hl"><h2>Data you can trust</h2></div><span class="sub">Foundations</span></div>
+        <div class="auto-stagger">
+          <p class="caption animate-on-appear">Seeded, reproducible, self-labelling.</p>
+          <h3 class="big-statement animate-on-appear" style="font-size:44px">Invoices built from real POs across <span class="gradient-text">every scenario.</span></h3>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>07</span></div>
+      </section>
+
+      <!-- 8 INGEST -->
+      <section class="slide" data-sec="Pipeline" data-title="Ingestion">
+        <div class="slide-header"><div class="hl"><h2>Read the mailbox — any format</h2></div><span class="sub">Ingestion</span></div>
+        <div class="auto-stagger">
+          <p class="lead animate-on-appear" style="max-width:44ch">Provider-abstracted intake — Microsoft Graph, Gmail, or folder replay — extracting, classifying and de-duplicating every attachment.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>08</span></div>
+      </section>
+
+      <!-- 9 EXTRACT -->
+      <section class="slide" data-sec="Pipeline" data-title="Extraction">
+        <div class="slide-header"><div class="hl"><h2>Document → structured data</h2></div><span class="sub">Extraction</span></div>
+        <div class="auto-stagger">
+          <div class="flow animate-on-appear">
+            <span class="node">Text layer</span><span class="arw">/</span><span class="node">OCR</span><span class="arw">→</span>
+            <span class="node k">Ollama JSON</span><span class="arw">→</span><span class="node">Validate</span>
+          </div>
+          <p class="lead animate-on-appear" style="max-width:42ch">Digital PDFs use the text layer; scans fall back to OCR. A deterministic backstop recovers PO numbers the model misses.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>09</span></div>
+      </section>
+
+      <!-- 10 RAG -->
+      <section class="slide" data-sec="Pipeline" data-title="Retrieval">
+        <div class="slide-header"><div class="hl"><h2>Find the right PO — even when messy</h2></div><span class="sub">Retrieval · RAG</span></div>
+        <div class="auto-stagger">
+          <p class="lead animate-on-appear" style="max-width:44ch">Semantic search over PO embeddings in PGVector shrugs off fuzzy vendor names and missing PO numbers.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>10</span></div>
+      </section>
+
+      <!-- 11 RETRIEVAL STAT -->
+      <section class="slide" data-sec="Pipeline" data-title="Retrieval result">
+        <div class="stats-row animate-on-appear auto-stagger">
+          <div class="stat animate-on-appear"><div class="v gradient-text">100%</div><div class="l">retrieval hit@1 · MRR 1.0</div></div>
+        </div>
+        <p class="caption animate-on-appear" style="text-align:center">Correct purchase order ranked first — across fuzzed-vendor tests, 60 POs indexed.</p>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>11</span></div>
+      </section>
+
+      <!-- 12 MATCH -->
+      <section class="slide" data-sec="Pipeline" data-title="Matching">
+        <div class="slide-header"><div class="hl"><h2>2-way &amp; 3-way, tolerant by design</h2></div><span class="sub">Matching</span></div>
+        <div class="auto-stagger">
+          <div class="chips animate-on-appear">
+            <span class="chip">matched</span><span class="chip">price variance</span><span class="chip">qty variance</span>
+            <span class="chip">partial</span><span class="chip">missing PO</span><span class="chip">duplicate</span>
+          </div>
+          <p class="lead animate-on-appear" style="max-width:44ch">Line-level comparison vs PO and Goods Receipt with configurable price/qty tolerances. Matched → auto-post; else → review.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>12</span></div>
+      </section>
+
+      <!-- 13 ORCH -->
+      <section class="slide" data-sec="Pipeline" data-title="Orchestration">
+        <div class="slide-header"><div class="hl"><h2>One graph, every step</h2></div><span class="sub">Orchestration</span></div>
+        <div class="auto-stagger">
+          <div class="flow animate-on-appear">
+            <span class="node">extract</span><span class="arw">→</span><span class="node">match</span><span class="arw">→</span>
+            <span class="node k">post</span><span class="arw">/</span><span class="node k">escalate</span><span class="arw">→</span><span class="node">audit</span>
+          </div>
+          <p class="lead animate-on-appear" style="max-width:42ch">A LangGraph state machine routes clean matches to posting and exceptions to a human — accumulating an audit trail.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>13</span></div>
+      </section>
+
+      <!-- 14 HITL -->
+      <section class="slide" data-sec="Pipeline" data-title="Human review">
+        <div class="slide-header"><div class="hl"><h2>Automation with a safety net</h2></div><span class="sub">Human-in-the-loop</span></div>
+        <div class="auto-stagger">
+          <p class="lead animate-on-appear" style="max-width:46ch">Exceptions queue for review. Approve to post the journal; reject to close. Every decision is audited.</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>14</span></div>
+      </section>
+
+      <!-- 15 POST + AR -->
+      <section class="slide" data-sec="Pipeline" data-title="Post &amp; AR">
+        <div class="slide-header"><div class="hl"><h2>Close the loop, both directions</h2></div><span class="sub">Payable &amp; Receivable</span></div>
+        <div class="cards auto-stagger">
+          <div class="card animate-on-appear"><h4>Payable</h4><p>Post an approved invoice as a Payment Journal — idempotent, so duplicates never pay twice.</p></div>
+          <div class="card animate-on-appear"><h4>Receivable</h4><p>Match inbound remittances to open AR items and apply cash — full, partial, or overpaid.</p></div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>15</span></div>
+      </section>
+
+      <!-- 16 AUDIT + OBS -->
+      <section class="slide" data-sec="Pipeline" data-title="Audit &amp; traces">
+        <div class="slide-header"><div class="hl"><h2>Every decision, traceable</h2></div><span class="sub">Audit &amp; observability</span></div>
+        <div class="cards auto-stagger">
+          <div class="card animate-on-appear"><h4>Audit trail</h4><p>One record per decision, correlated across a run and linked back to the source email.</p></div>
+          <div class="card animate-on-appear"><h4>Phoenix tracing</h4><p>OpenTelemetry traces stream to Arize Phoenix — retrieval and reasoning steps, visible.</p></div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>16</span></div>
+      </section>
+
+      <!-- 17 EVAL INTRO -->
+      <section class="slide" data-sec="Results" data-title="Evaluation">
+        <div class="auto-stagger">
+          <p class="caption animate-on-appear" style="text-align:center">Measured against auto-labelled ground truth.</p>
+          <h3 class="big-statement animate-on-appear" style="text-align:center">How good <span class="gradient-text">is it?</span></h3>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>17</span></div>
+      </section>
+
+      <!-- 18 RESULTS -->
+      <section class="slide" data-sec="Results" data-title="Results">
+        <div class="stats-row auto-stagger">
+          <div class="stat animate-on-appear"><div class="v gradient-text">96%</div><div class="l">extraction accuracy</div></div>
+          <div class="stat animate-on-appear"><div class="v gradient-text">100%</div><div class="l">retrieval hit@1</div></div>
+          <div class="stat animate-on-appear"><div class="v gradient-text">87%</div><div class="l">straight-through rate</div></div>
+        </div>
+        <p class="caption animate-on-appear" style="text-align:center">Live run · 15 invoices · Docling + Ollama llama3.1:8b + PGVector + ERP</p>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>18</span></div>
+      </section>
+
+      <!-- 19 LIVE RUN -->
+      <section class="slide" data-sec="Results" data-title="Live run">
+        <div class="slide-header"><div class="hl"><h2>Four posted. One escalated.</h2></div><span class="sub">Live run</span></div>
+        <table class="tbl animate-on-appear">
+          <tr><th>Invoice</th><th>Match</th><th>Decision</th><th>Journal</th></tr>
+          <tr><td>PO-10001</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000001</td></tr>
+          <tr><td>90002 · scan</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000002</td></tr>
+          <tr><td>90003</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000003</td></tr>
+          <tr><td>90004</td><td class="ex">qty variance</td><td class="ex">escalated</td><td>—</td></tr>
+          <tr><td>90005</td><td>matched · 3-way</td><td class="ok">posted</td><td class="mono">PJ-000004</td></tr>
+        </table>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>19</span></div>
+      </section>
+
+      <!-- 20 DECISIONS -->
+      <section class="slide" data-sec="Results" data-title="Design choices">
+        <div class="slide-header"><div class="hl"><h2>Choices that matter</h2></div><span class="sub">Engineering</span></div>
+        <div class="rows auto-stagger">
+          <div class="r animate-on-appear">Text layer for digital PDFs. <span>OCR only for scans.</span></div>
+          <div class="r animate-on-appear">A durable review queue. <span>Not a paused process.</span></div>
+          <div class="r animate-on-appear">One schema, shared everywhere. <span>Swap the mock ERP for real.</span></div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>20</span></div>
+      </section>
+
+      <!-- 21 DEPLOY -->
+      <section class="slide" data-sec="Results" data-title="Deployment">
+        <div class="slide-header"><div class="hl"><h2>Ship it</h2></div><span class="sub">Deployment</span></div>
+        <div class="cmd animate-on-appear">
+          <div><span class="c">$</span> make up</div>
+          <div><span class="c">$</span> make ollama-pull</div>
+          <div><span class="c">$</span> make agent</div>
+          <div><span class="c">$</span> make eval</div>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>21</span></div>
+      </section>
+
+      <!-- 22 CLOSE -->
+      <section class="slide" data-sec="Results" data-title="Close">
+        <div class="auto-stagger">
+          <h1 class="title animate-on-appear">Invoices in.<br><span class="gradient-text">Journals out.</span></h1>
+          <p class="lead animate-on-appear">Humans only where it matters.</p>
+          <p class="caption animate-on-appear mono" style="margin-top:34px">github.com/sudheerchowdary97/sight-spectrum-ai-agent-automation</p>
+        </div>
+        <div class="slide-footer"><span>Agentic Invoice-to-Payment Automation</span><span>Thank you</span></div>
+      </section>
+
+    </div>
+  </main>
+</div>
 
 <script>
   const slides = Array.from(document.querySelectorAll('.slide'));
-  const bar = document.getElementById('bar');
-  const num = document.getElementById('num');
+  const stage = document.getElementById('stage');
+  const fill = document.getElementById('fill');
+  const outline = document.getElementById('outline');
   let i = 0;
-  const pad = n => String(n).padStart(2,'0');
+
+  // Build sidebar outline grouped by section.
+  let lastSec = null;
+  slides.forEach((s, idx) => {
+    const sec = s.dataset.sec || '';
+    if (sec !== lastSec) {
+      const h = document.createElement('div'); h.className = 'outline-sec'; h.textContent = sec;
+      outline.appendChild(h); lastSec = sec;
+    }
+    const it = document.createElement('div'); it.className = 'outline-item'; it.dataset.idx = idx;
+    it.innerHTML = `<span class="n">${String(idx+1).padStart(2,'0')}</span><span class="t">${s.dataset.title||''}</span>`;
+    it.onclick = () => show(idx);
+    outline.appendChild(it);
+  });
+  const items = Array.from(document.querySelectorAll('.outline-item'));
+
+  function scaleSlides(){
+    const main = document.querySelector('.main');
+    const k = Math.min(main.clientWidth / 1400, main.clientHeight / 900);
+    slides.forEach(s => s.style.transform = `translate(-50%,-50%) scale(${k})`);
+  }
+  window.addEventListener('resize', scaleSlides);
+
   function show(n){
     i = Math.max(0, Math.min(slides.length-1, n));
     slides.forEach((s,x)=>s.classList.toggle('active', x===i));
-    num.textContent = `${pad(i+1)} / ${pad(slides.length)}`;
-    bar.style.width = ((i+1)/slides.length*100)+'%';
+    items.forEach((it,x)=>it.classList.toggle('active', x===i));
+    fill.style.width = ((i+1)/slides.length*100)+'%';
     location.hash = i+1;
-    // re-trigger staggered build-in animations
-    slides[i].querySelectorAll('.build').forEach((el,x)=>{
-      el.style.animation='none'; void el.offsetWidth;
-      el.style.animation=`rise .66s cubic-bezier(.2,.7,.2,1) ${0.05 + x*0.08}s both`;
-    });
+    // replay build-in
+    const active = slides[i];
+    active.querySelectorAll('.animate-on-appear').forEach(el=>el.classList.remove('visible'));
+    void active.offsetWidth;
+    requestAnimationFrame(()=>active.querySelectorAll('.animate-on-appear').forEach(el=>el.classList.add('visible')));
+    items[i]?.scrollIntoView({block:'nearest'});
   }
   const next=()=>show(i+1), prev=()=>show(i-1);
+
+  // Chrome
+  function toggleSidebar(){document.getElementById('sidebar').classList.toggle('hidden');document.querySelector('.sidebar-toggle').classList.toggle('active');scaleSlides();}
+  function toggleSettings(){document.getElementById('settings').classList.toggle('active');document.querySelector('.settings-toggle').classList.toggle('active');}
+  function toggleFs(){const b=document.querySelector('.fullscreen-toggle');if(document.fullscreenElement){document.exitFullscreen();b.classList.remove('active');}else{document.documentElement.requestFullscreen();b.classList.add('active');}}
+  const reddot=document.getElementById('reddot');
+  function toggleMarker(){document.body.classList.toggle('marker-mode');document.querySelector('.marker-toggle').classList.toggle('active');}
+  document.addEventListener('mousemove',e=>{reddot.style.left=e.clientX+'px';reddot.style.top=e.clientY+'px';});
+  function setTheme(t){document.documentElement.dataset.theme=t;document.querySelectorAll('[data-theme-opt]').forEach(o=>o.classList.toggle('active',o.dataset.themeOpt===t));}
+  function setAnim(on){document.body.classList.toggle('animations-off',!on);document.querySelectorAll('[data-anim]').forEach(o=>o.classList.toggle('active',(o.dataset.anim==='on')===on));}
+  window.toggleSidebar=toggleSidebar;window.toggleSettings=toggleSettings;window.toggleFs=toggleFs;window.toggleMarker=toggleMarker;window.setTheme=setTheme;window.setAnim=setAnim;
+
   document.addEventListener('keydown', e=>{
     if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();next();}
     else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev();}
-    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(slides.length-1);}
-    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')toggleFs();
+    else if(e.key==='s'||e.key==='S')toggleSidebar();
+    else if(e.key==='m'||e.key==='M')toggleMarker();
   });
-  document.addEventListener('click', e=>{ if(e.clientX < innerWidth*0.28) prev(); else next(); });
+  document.querySelector('.main').addEventListener('click', e=>{ if(e.clientX < innerWidth*0.25) prev(); else next(); });
+
+  setTheme('light');
+  scaleSlides();
   const start = parseInt((location.hash||'').replace('#',''),10);
   show(Number.isFinite(start)&&start>0 ? start-1 : 0);
 </script>
