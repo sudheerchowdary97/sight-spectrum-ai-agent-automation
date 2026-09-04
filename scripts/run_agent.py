@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from invoice_agent.config import get_settings
 from invoice_agent.ingestion.providers import build_provider
 from invoice_agent.ingestion.service import IngestionService
+from invoice_agent.observability import configure_tracing
 from invoice_agent.orchestration.graph import build_agent_runner
 
 
@@ -29,6 +30,7 @@ def main() -> None:
     args = parser.parse_args()
 
     settings = get_settings()
+    configure_tracing(settings)
     ingestion = IngestionService(build_provider(settings), settings.ingested_dir)
     runner = build_agent_runner(settings)
 

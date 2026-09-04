@@ -6,10 +6,9 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–11 complete** — the full pipeline plus all five mandatory
-> API endpoints (ingest, match, post-journal, audit-log, health), human-in-the-loop
-> review, and the AR mirror. Remaining: observability (Phoenix), evaluation
-> (RAGAs + metrics), packaging, and the deck. See
+> Status: **Tasks 0–12 complete** — full pipeline, all five API endpoints,
+> human-in-the-loop review, AR mirror, and Arize Phoenix tracing. Remaining:
+> evaluation (RAGAs + metrics), packaging, and the deck. See
 > [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
@@ -195,6 +194,20 @@ docker compose exec api python scripts/run_agent.py --limit 5
 For each invoice it prints the match status, the decision (`posted` /
 `escalated` / `duplicate`), the posted journal id, and the audit trail. Clean
 matches auto-post a Payment Journal to the ERP; exceptions route to escalation.
+
+## Observability (Arize Phoenix)
+
+Tracing is best-effort and config-driven (`TRACING_ENABLED`,
+`PHOENIX_COLLECTOR_ENDPOINT`). When enabled, LlamaIndex (RAG retrieval and
+LlamaIndex-mediated LLM calls) is instrumented and traces flow to Phoenix:
+
+```bash
+open http://localhost:6006          # Phoenix UI
+docker compose exec api python scripts/run_agent.py --limit 3   # generate traces
+```
+
+Setup never fails the pipeline — if the collector or libraries are absent it
+degrades to a no-op.
 
 ## License
 

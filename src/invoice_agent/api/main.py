@@ -34,6 +34,7 @@ from invoice_agent.ingestion.providers import build_provider
 from invoice_agent.ingestion.service import IngestionService
 from invoice_agent.logging_config import configure_logging, get_logger
 from invoice_agent.matching.service import MatchService, build_match_service
+from invoice_agent.observability import configure_tracing
 from invoice_agent.posting import ErpPaymentPoster, PostingService
 
 API_PREFIX = "/api/v1"
@@ -58,6 +59,7 @@ def create_app(
         configure_logging()
         log = get_logger("api")
         settings = get_settings()
+        configure_tracing(settings)
 
         if getattr(app.state, "audit_log", None) is None:
             app.state.audit_log = AuditLog()
