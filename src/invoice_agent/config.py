@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     # --- Email ingestion ---
     email_provider: str = "folder"  # folder | graph | gmail
     email_replay_dir: str = "data/inbox"
+    ingested_dir: str = "data/ingested"  # where extracted attachments are stored
 
     # --- Matching tolerances (see also config/tolerances.yaml) ---
     price_tolerance_pct: float = Field(default=0.02, ge=0)

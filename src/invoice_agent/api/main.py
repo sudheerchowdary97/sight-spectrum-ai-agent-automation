@@ -3,8 +3,8 @@
 Run with: ``uvicorn invoice_agent.api.main:app``.
 
 The minimum-required endpoints from the assignment are mounted under
-``/api/v1``. Health is implemented in Task 0; the remaining routers
-(ingest-invoice, match-po, post-payment-journal, audit-log) are added in
+``/api/v1``. Health (Task 0) and ingest-invoice (Task 3) are implemented; the
+remaining routers (match-po, post-payment-journal, audit-log) are added in
 their respective tasks.
 """
 
@@ -16,26 +16,36 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from invoice_agent import __version__
-from invoice_agent.api.routers import health
+from invoice_agent.api.routers import health, ingest
 from invoice_agent.config import get_settings
+from invoice_agent.ingestion.providers import build_provider
+from invoice_agent.ingestion.service import IngestionService
 from invoice_agent.logging_config import configure_logging, get_logger
 
 API_PREFIX = "/api/v1"
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Application lifespan: configure logging on start-up."""
-    configure_logging()
-    log = get_logger("api")
-    settings = get_settings()
-    log.info("api.startup", environment=settings.environment, version=__version__)
-    yield
-    log.info("api.shutdown")
+def create_app(ingestion_service: IngestionService | None = None) -> FastAPI:
+    """Build and configure the FastAPI application.
 
+    ``ingestion_service`` may be injected (tests); otherwise it is built from the
+    configured provider on start-up.
+    """
 
-def create_app() -> FastAPI:
-    """Build and configure the FastAPI application."""
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        configure_logging()
+        log = get_logger("api")
+        settings = get_settings()
+        if getattr(app.state, "ingestion_service", None) is None:
+            app.state.ingestion_service = IngestionService(
+                provider=build_provider(settings),
+                ingested_dir=settings.ingested_dir,
+            )
+        log.info("api.startup", environment=settings.environment, version=__version__)
+        yield
+        log.info("api.shutdown")
+
     app = FastAPI(
         title="Agentic Invoice-to-Payment API",
         version=__version__,
@@ -46,12 +56,13 @@ def create_app() -> FastAPI:
         ),
         lifespan=lifespan,
     )
+    # Injected service (tests) is available immediately, without waiting for lifespan.
+    app.state.ingestion_service = ingestion_service
 
-    # Implemented in Task 0.
     app.include_router(health.router, prefix=API_PREFIX)
+    app.include_router(ingest.router, prefix=API_PREFIX)
 
     # Mounted in later tasks:
-    #   POST {API_PREFIX}/ingest-invoice        (Task 3)
     #   POST {API_PREFIX}/match-po              (Task 6)
     #   POST {API_PREFIX}/post-payment-journal  (Task 9)
     #   GET  {API_PREFIX}/audit-log             (Task 11)

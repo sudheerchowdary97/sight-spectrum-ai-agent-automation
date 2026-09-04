@@ -6,9 +6,9 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–2 complete** — foundation, synthetic data generator, and
-> Mock ERP. Subsequent tasks build the agent pipeline on top. See
-> [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–3 complete** — foundation, synthetic data generator, Mock
+> ERP, and email ingestion. Subsequent tasks build the agent pipeline on top.
+> See [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
