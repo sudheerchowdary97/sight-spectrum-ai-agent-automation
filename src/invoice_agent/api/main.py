@@ -15,7 +15,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from invoice_agent import __version__
-from invoice_agent.api.routers import exceptions, health, ingest, match, payment
+from invoice_agent.api.routers import exceptions, health, ingest, match, payment, remittance
+from invoice_agent.ar.service import RemittanceService
 from invoice_agent.audit_log import AuditLog
 from invoice_agent.config import get_settings
 from invoice_agent.erp_client import ErpClient
@@ -35,6 +36,7 @@ def create_app(
     match_service: MatchService | None = None,
     review_service: HumanReviewService | None = None,
     posting_service: PostingService | None = None,
+    remittance_service: RemittanceService | None = None,
     audit_log: AuditLog | None = None,
 ) -> FastAPI:
     """Build and configure the FastAPI application.
@@ -58,6 +60,10 @@ def create_app(
             )
         if getattr(app.state, "posting_service", None) is None:
             app.state.posting_service = PostingService(poster, app.state.audit_log)
+        if getattr(app.state, "remittance_service", None) is None:
+            app.state.remittance_service = RemittanceService(
+                ErpClient(settings.erp_base_url), app.state.audit_log
+            )
         if getattr(app.state, "ingestion_service", None) is None:
             app.state.ingestion_service = IngestionService(
                 provider=build_provider(settings),
@@ -86,6 +92,7 @@ def create_app(
     app.state.match_service = match_service
     app.state.review_service = review_service
     app.state.posting_service = posting_service
+    app.state.remittance_service = remittance_service
     app.state.audit_log = audit_log
 
     app.include_router(health.router, prefix=API_PREFIX)
@@ -93,6 +100,7 @@ def create_app(
     app.include_router(match.router, prefix=API_PREFIX)
     app.include_router(exceptions.router, prefix=API_PREFIX)
     app.include_router(payment.router, prefix=API_PREFIX)
+    app.include_router(remittance.router, prefix=API_PREFIX)
 
     # Mounted in a later task:
     #   GET  {API_PREFIX}/audit-log             (Task 11)
