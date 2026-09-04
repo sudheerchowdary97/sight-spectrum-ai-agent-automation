@@ -6,9 +6,10 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–5 complete** — foundation, synthetic data, Mock ERP, email
-> ingestion, Docling+Ollama extraction, and RAG retrieval (PGVector+LlamaIndex).
-> Subsequent tasks build the rest of the agent pipeline. See
+> Status: **Tasks 0–6 complete** — foundation, synthetic data, Mock ERP, email
+> ingestion, Docling+Ollama extraction, RAG retrieval (PGVector+LlamaIndex), and
+> the 2-way/3-way matching engine. Subsequent tasks add orchestration,
+> posting, audit, observability, evaluation. See
 > [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
