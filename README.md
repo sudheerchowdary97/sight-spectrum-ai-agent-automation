@@ -29,6 +29,11 @@ mirrored for inbound **AR remittances**.
 
 ## Quick start
 
+> **Deployment is Docker-only.** This is a backend agent (FastAPI + Postgres +
+> Ollama + workers) run via Docker Compose — it is **not** a Vercel/Netlify
+> target. `vercel.json` disables git-triggered deployments; if a hosting
+> provider is connected to this repo, disconnect it to avoid failed builds.
+
 ```bash
 # 1. Configure
 cp .env.example .env            # adjust as needed
