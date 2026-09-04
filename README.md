@@ -6,10 +6,11 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–10 complete** — foundation, synthetic data, Mock ERP,
-> ingestion, extraction, RAG, matching, LangGraph orchestration, human-in-the-loop
-> review, payment posting, and the AR remittance mirror. Remaining: audit log,
-> observability, evaluation, packaging. See [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–11 complete** — the full pipeline plus all five mandatory
+> API endpoints (ingest, match, post-journal, audit-log, health), human-in-the-loop
+> review, and the AR mirror. Remaining: observability (Phoenix), evaluation
+> (RAGAs + metrics), packaging, and the deck. See
+> [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 

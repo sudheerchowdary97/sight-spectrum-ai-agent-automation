@@ -15,7 +15,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from invoice_agent import __version__
-from invoice_agent.api.routers import exceptions, health, ingest, match, payment, remittance
+from invoice_agent.api.routers import (
+    audit,
+    exceptions,
+    health,
+    ingest,
+    match,
+    payment,
+    remittance,
+)
 from invoice_agent.ar.service import RemittanceService
 from invoice_agent.audit_log import AuditLog
 from invoice_agent.config import get_settings
@@ -101,9 +109,8 @@ def create_app(
     app.include_router(exceptions.router, prefix=API_PREFIX)
     app.include_router(payment.router, prefix=API_PREFIX)
     app.include_router(remittance.router, prefix=API_PREFIX)
+    app.include_router(audit.router, prefix=API_PREFIX)
 
-    # Mounted in a later task:
-    #   GET  {API_PREFIX}/audit-log             (Task 11)
     return app
 
 
