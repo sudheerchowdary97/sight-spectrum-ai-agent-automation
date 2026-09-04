@@ -125,6 +125,9 @@ Scenario mix (auto-labelled): clean match, price variance, qty variance,
 partial, missing-PO, duplicate — plus fuzzy vendor-name variants to exercise
 semantic retrieval.
 
+> **After regenerating data, restart the ERP so it re-seeds:**
+> `docker compose restart mock-erp` (it loads master data at start-up).
+
 ## Running extraction (Docling + Ollama)
 
 Field extraction (Task 4) runs **Docling** (document → text, with OCR for scans)
