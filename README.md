@@ -6,8 +6,9 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Task 0 — foundation & scaffolding** complete. Subsequent tasks build
-> the pipeline on top of this contract. See [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–2 complete** — foundation, synthetic data generator, and
+> Mock ERP. Subsequent tasks build the agent pipeline on top. See
+> [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -63,6 +64,19 @@ make lint test      # ruff + pytest
 | POST   | `/api/v1/match-po`              | 6    | 2-way / 3-way match against PO/GR   |
 | POST   | `/api/v1/post-payment-journal`  | 9    | Post an AP journal entry            |
 | GET    | `/api/v1/audit-log`             | 11   | Retrieve the decision audit trail   |
+
+### Mock ERP endpoints (`:8001`, Task 2)
+
+Seeded from the Task 1 master data; a real SAP/Oracle/NetSuite connector can
+replace it behind the same interface.
+
+| Method | Path                                   | Description                        |
+|--------|----------------------------------------|------------------------------------|
+| GET    | `/api/v1/purchase-orders/{po_number}`  | Fetch a Purchase Order             |
+| GET    | `/api/v1/goods-receipts?po_number=`    | List Goods Receipts for a PO       |
+| GET    | `/api/v1/ar-items[?status=open]`       | List open AR items                 |
+| POST   | `/api/v1/payment-journals`             | Post AP journal (409 on duplicate) |
+| POST   | `/api/v1/cash-applications`            | Apply a remittance to an AR item   |
 
 ## Project layout
 

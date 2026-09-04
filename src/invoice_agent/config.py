@@ -47,6 +47,7 @@ class Settings(BaseSettings):
 
     # --- Mock / real ERP ---
     erp_base_url: str = "http://localhost:8001"
+    erp_data_dir: str = "data/master"  # seed data for the mock ERP store
 
     # --- Email ingestion ---
     email_provider: str = "folder"  # folder | graph | gmail
