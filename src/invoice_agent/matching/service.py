@@ -22,23 +22,28 @@ class MatchService:
         tolerances: ToleranceProvider,
         dedup: DedupStore | None = None,
         rag: object | None = None,
+        reviewer: object | None = None,
     ) -> None:
         self._erp = erp
         self._tolerances = tolerances
         self._dedup = dedup or DedupStore()
         self._rag = rag  # RagService | None (kept loose to avoid a hard import)
+        self._reviewer = reviewer  # hitl.Reviewer | None
 
     def match_invoice(self, invoice: Invoice) -> MatchResult:
         # 1) Duplicate detection (content hash from extraction).
         if self._dedup.seen(invoice.dedup_hash):
             log.info("match.duplicate", invoice_number=invoice.invoice_number)
-            return MatchResult(
-                invoice_number=invoice.invoice_number,
-                po_number=invoice.po_number,
-                match_type=MatchType.TWO_WAY,
-                status=MatchStatus.DUPLICATE,
-                requires_human=True,
-                notes="Duplicate invoice (content already seen)",
+            return self._finalize(
+                invoice,
+                MatchResult(
+                    invoice_number=invoice.invoice_number,
+                    po_number=invoice.po_number,
+                    match_type=MatchType.TWO_WAY,
+                    status=MatchStatus.DUPLICATE,
+                    requires_human=True,
+                    notes="Duplicate invoice (content already seen)",
+                ),
             )
         self._dedup.add(invoice.dedup_hash)
 
@@ -62,6 +67,15 @@ class MatchService:
             status=result.status.value,
             match_type=result.match_type.value,
         )
+        return self._finalize(invoice, result)
+
+    def _finalize(self, invoice: Invoice, result: MatchResult) -> MatchResult:
+        """Queue an exception for human review when the match needs oversight."""
+        if self._reviewer is not None and result.requires_human:
+            try:
+                self._reviewer.submit(invoice, result)
+            except Exception as exc:  # pragma: no cover - queueing is best-effort
+                log.info("match.review_submit_error", error=str(exc))
         return result
 
     def _resolve_po(self, invoice: Invoice) -> PurchaseOrder | None:
@@ -82,7 +96,7 @@ class MatchService:
         return None
 
 
-def build_match_service(settings: Settings) -> MatchService:
+def build_match_service(settings: Settings, reviewer: object | None = None) -> MatchService:
     """Build the real matching service (HTTP ERP client + RAG + tolerances)."""
     from invoice_agent.erp_client import ErpClient
     from invoice_agent.rag.service import build_rag_service
@@ -92,4 +106,5 @@ def build_match_service(settings: Settings) -> MatchService:
         tolerances=ToleranceProvider.from_settings(settings),
         dedup=DedupStore(),
         rag=build_rag_service(settings),
+        reviewer=reviewer,
     )

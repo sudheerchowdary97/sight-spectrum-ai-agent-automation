@@ -6,11 +6,11 @@ Goods Receipts in the ERP, and **posts a Payment Journal** for approved invoices
 with a full audit trail and human oversight for exceptions. The same pattern is
 mirrored for inbound **AR remittances**.
 
-> Status: **Tasks 0–7 complete** — foundation, synthetic data, Mock ERP,
-> ingestion, extraction, RAG retrieval, matching, and the LangGraph agent
-> orchestration (ingest → extract → match → post/escalate → audit). Remaining:
-> HITL, posting endpoint, AR mirror, audit log, observability, evaluation,
-> packaging. See [docs/architecture.md](docs/architecture.md).
+> Status: **Tasks 0–8 complete** — foundation, synthetic data, Mock ERP,
+> ingestion, extraction, RAG, matching, LangGraph orchestration, and
+> human-in-the-loop exception review. Remaining: posting endpoint, AR mirror,
+> audit log, observability, evaluation, packaging. See
+> [docs/architecture.md](docs/architecture.md).
 
 ## Technology stack
 
@@ -66,6 +66,19 @@ make lint test      # ruff + pytest
 | POST   | `/api/v1/match-po`              | 6    | 2-way / 3-way match against PO/GR   |
 | POST   | `/api/v1/post-payment-journal`  | 9    | Post an AP journal entry            |
 | GET    | `/api/v1/audit-log`             | 11   | Retrieve the decision audit trail   |
+
+### Human-in-the-loop endpoints (Task 8)
+
+Matches that need oversight (variance / missing-PO / duplicate) are queued as
+exceptions. A human lists them and approves (→ posts the Payment Journal) or
+rejects — every decision is audited.
+
+| Method | Path                                          | Description                     |
+|--------|-----------------------------------------------|---------------------------------|
+| GET    | `/api/v1/exceptions[?status=pending]`         | List queued exceptions          |
+| GET    | `/api/v1/exceptions/{id}`                      | Fetch one exception             |
+| POST   | `/api/v1/exceptions/{id}/approve`             | Approve → post the journal      |
+| POST   | `/api/v1/exceptions/{id}/reject`              | Reject → close the invoice      |
 
 ### Mock ERP endpoints (`:8001`, Task 2)
 
