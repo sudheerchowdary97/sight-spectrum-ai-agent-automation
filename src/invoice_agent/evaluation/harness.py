@@ -26,13 +26,18 @@ log = get_logger("evaluation")
 
 
 def run_evaluation(
-    settings: Settings, *, limit: int | None = None, data_dir: str | Path = "data"
+    settings: Settings,
+    *,
+    limit: int | None = None,
+    data_dir: str | Path = "data",
+    ragas: bool = False,
 ) -> EvaluationReport:
     """Run the pipeline over the labelled dataset and compute metrics."""
     from invoice_agent.extraction.service import build_extraction_service
     from invoice_agent.ingestion.providers.folder import FolderProvider
     from invoice_agent.ingestion.service import IngestionService
     from invoice_agent.matching.service import build_match_service
+    from invoice_agent.rag.documents import invoice_to_query, po_to_text
     from invoice_agent.rag.service import build_rag_service
 
     base = Path(data_dir)
@@ -45,6 +50,7 @@ def run_evaluation(
         PurchaseOrder.model_validate(d)
         for d in json.loads((base / "master" / "purchase_orders.json").read_text())
     ]
+    po_text = {po.po_number: po_to_text(po) for po in pos}
     rag = build_rag_service(settings)
     rag.index_master(pos)
 
@@ -56,6 +62,7 @@ def run_evaluation(
     extraction_results: list[dict] = []
     match_samples: list[dict] = []
     retrieval_samples: list[dict] = []
+    ragas_samples: list[dict] = []
 
     for record in ground_truth:
         source_files = record.get("source_files") or []
@@ -84,18 +91,31 @@ def run_evaluation(
             }
         )
         candidates = rag.find_candidate_pos(invoice, top_k=5)
+        expected_po = record["po_number"] if record.get("linked_po_exists") else None
         retrieval_samples.append(
-            {
-                "expected_po": record["po_number"] if record.get("linked_po_exists") else None,
-                "ranked": [c.po_number for c in candidates],
-            }
+            {"expected_po": expected_po, "ranked": [c.po_number for c in candidates]}
         )
+        if expected_po and expected_po in po_text:
+            ragas_samples.append(
+                {
+                    "query": invoice_to_query(invoice),
+                    "contexts": [
+                        po_text[c.po_number] for c in candidates if c.po_number in po_text
+                    ],
+                    "reference": po_text[expected_po],
+                }
+            )
         log.info("eval.invoice", invoice_number=invoice.invoice_number, status=match.status.value)
 
-    return EvaluationReport(
+    report = EvaluationReport(
         dataset=str(base / "ground_truth.json"),
         invoices_evaluated=len(extraction_results),
         extraction=aggregate_extraction(extraction_results),
         matching=match_metrics(match_samples),
         retrieval=retrieval_metrics(retrieval_samples),
     )
+    if ragas:
+        from invoice_agent.evaluation.ragas_eval import evaluate_with_ragas
+
+        report.ragas = evaluate_with_ragas(ragas_samples, settings)
+    return report

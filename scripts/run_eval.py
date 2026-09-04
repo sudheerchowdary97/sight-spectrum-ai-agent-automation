@@ -25,11 +25,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate the pipeline vs ground truth.")
     parser.add_argument("--limit", type=int, default=None, help="Max invoices to evaluate")
     parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--ragas", action="store_true", help="Also run best-effort RAGAs metrics")
     args = parser.parse_args()
 
     settings = get_settings()
     configure_tracing(settings)
-    report = run_evaluation(settings, limit=args.limit, data_dir=args.data_dir)
+    report = run_evaluation(settings, limit=args.limit, data_dir=args.data_dir, ragas=args.ragas)
 
     out = Path(args.data_dir)
     (out / "evaluation_report.json").write_text(report.model_dump_json(indent=2), encoding="utf-8")

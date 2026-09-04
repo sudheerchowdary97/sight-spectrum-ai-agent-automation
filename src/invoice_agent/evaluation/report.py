@@ -15,6 +15,7 @@ class EvaluationReport(BaseModel):
     extraction: dict[str, Any] = Field(default_factory=dict)
     matching: dict[str, Any] = Field(default_factory=dict)
     retrieval: dict[str, Any] = Field(default_factory=dict)
+    ragas: dict[str, Any] = Field(default_factory=dict)
 
     def to_markdown(self) -> str:
         ext = self.extraction
@@ -44,6 +45,13 @@ class EvaluationReport(BaseModel):
             f"- hit@1: **{_pct(ret.get('hit_at_1'))}**",
             f"- MRR: **{ret.get('mrr', 0.0)}**",
         ]
+        if self.ragas:
+            lines += ["", "## RAGAs"]
+            if self.ragas.get("available"):
+                for metric, score in self.ragas.get("scores", {}).items():
+                    lines.append(f"- {metric}: **{score}**")
+            else:
+                lines.append(f"- unavailable: {self.ragas.get('reason', 'n/a')}")
         return "\n".join(lines)
 
 

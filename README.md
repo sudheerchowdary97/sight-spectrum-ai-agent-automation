@@ -223,6 +223,20 @@ Writes `data/evaluation_report.{json,md}` and prints:
 - **Matching** — classification accuracy vs ground truth, match rate, **STP rate**
 - **Retrieval** — RAG candidate-PO `hit@1` and MRR
 
+Add `--ragas` for best-effort RAGAs context precision/recall (uses the local
+Ollama model as judge; degrades to "unavailable" if not installed).
+
+## Deliverables
+
+- **Source** — this repository (default branch `main`).
+- **Docker Compose** — `docker-compose.yml` (one-command `make up`).
+- **OpenAPI / Swagger** — live at `/docs` and `/openapi.json`; a snapshot is
+  committed at [`docs/openapi.json`](docs/openapi.json).
+- **Evaluation report** — generated to `data/evaluation_report.{json,md}`.
+- **Architecture** — [`docs/architecture.md`](docs/architecture.md).
+- **Presentation deck** — [`docs/deck/index.html`](docs/deck/index.html)
+  (self-contained; open in a browser).
+
 ## License
 
 [MIT](LICENSE)

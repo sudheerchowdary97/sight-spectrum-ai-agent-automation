@@ -53,6 +53,7 @@ eval = [
     "ragas>=0.2",
     "datasets>=3.0",
     "pandas>=2.2",
+    "langchain-ollama>=0.2",
 ]
 # Synthetic data generation (Task 1).
 data = [

@@ -60,6 +60,28 @@ ollama-pull: ## Pull the required Ollama models into the running container
 data: ## Generate synthetic invoices, PO/GR master data, and ground truth
 	python scripts/generate_synthetic_data.py
 
+# ─── Pipeline CLIs (run inside the api container) ───────────────────────────
+.PHONY: agent
+agent: ## Run the agent over inbox invoices (extract→match→post/escalate→audit)
+	$(COMPOSE) exec api python scripts/run_agent.py --limit 5
+
+.PHONY: ar
+ar: ## Apply AR remittances against open AR items
+	$(COMPOSE) exec api python scripts/run_ar.py
+
+.PHONY: eval
+eval: ## Evaluate the pipeline vs ground truth → data/evaluation_report.{json,md}
+	$(COMPOSE) exec api python scripts/run_eval.py --limit 20
+
+.PHONY: rag-check
+rag-check: ## Index POs and test fuzzy-vendor retrieval (hit@1)
+	$(COMPOSE) exec api python scripts/rag_index_retrieve.py --sample 10
+
+.PHONY: seed
+seed: ## Generate data (in api container) and re-seed the mock ERP
+	$(COMPOSE) exec api python scripts/generate_synthetic_data.py --out data
+	$(COMPOSE) restart mock-erp
+
 .PHONY: clean
 clean: ## Remove caches and generated data
 	rm -rf .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage
