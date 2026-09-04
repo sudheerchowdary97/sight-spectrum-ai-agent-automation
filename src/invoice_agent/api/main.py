@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from invoice_agent import __version__
-from invoice_agent.api.routers import exceptions, health, ingest, match
+from invoice_agent.api.routers import exceptions, health, ingest, match, payment
 from invoice_agent.audit_log import AuditLog
 from invoice_agent.config import get_settings
 from invoice_agent.erp_client import ErpClient
@@ -25,7 +25,7 @@ from invoice_agent.ingestion.providers import build_provider
 from invoice_agent.ingestion.service import IngestionService
 from invoice_agent.logging_config import configure_logging, get_logger
 from invoice_agent.matching.service import MatchService, build_match_service
-from invoice_agent.posting import ErpPaymentPoster
+from invoice_agent.posting import ErpPaymentPoster, PostingService
 
 API_PREFIX = "/api/v1"
 
@@ -34,6 +34,7 @@ def create_app(
     ingestion_service: IngestionService | None = None,
     match_service: MatchService | None = None,
     review_service: HumanReviewService | None = None,
+    posting_service: PostingService | None = None,
     audit_log: AuditLog | None = None,
 ) -> FastAPI:
     """Build and configure the FastAPI application.
@@ -50,12 +51,13 @@ def create_app(
 
         if getattr(app.state, "audit_log", None) is None:
             app.state.audit_log = AuditLog()
+        poster = ErpPaymentPoster(ErpClient(settings.erp_base_url))
         if getattr(app.state, "review_service", None) is None:
             app.state.review_service = HumanReviewService(
-                ExceptionStore(),
-                ErpPaymentPoster(ErpClient(settings.erp_base_url)),
-                app.state.audit_log,
+                ExceptionStore(), poster, app.state.audit_log
             )
+        if getattr(app.state, "posting_service", None) is None:
+            app.state.posting_service = PostingService(poster, app.state.audit_log)
         if getattr(app.state, "ingestion_service", None) is None:
             app.state.ingestion_service = IngestionService(
                 provider=build_provider(settings),
@@ -83,15 +85,16 @@ def create_app(
     app.state.ingestion_service = ingestion_service
     app.state.match_service = match_service
     app.state.review_service = review_service
+    app.state.posting_service = posting_service
     app.state.audit_log = audit_log
 
     app.include_router(health.router, prefix=API_PREFIX)
     app.include_router(ingest.router, prefix=API_PREFIX)
     app.include_router(match.router, prefix=API_PREFIX)
     app.include_router(exceptions.router, prefix=API_PREFIX)
+    app.include_router(payment.router, prefix=API_PREFIX)
 
-    # Mounted in later tasks:
-    #   POST {API_PREFIX}/post-payment-journal  (Task 9)
+    # Mounted in a later task:
     #   GET  {API_PREFIX}/audit-log             (Task 11)
     return app
 
