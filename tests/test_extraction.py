@@ -85,6 +85,14 @@ def test_service_produces_validated_invoice() -> None:
     assert inv.document_type is DocumentType.PDF
     assert inv.dedup_hash
     assert result.confidence == 1.0
+
+
+def test_po_backstop_recovers_po_from_text() -> None:
+    # LLM drops the PO, but it is present in the parsed text → backstop recovers it.
+    parser = _FakeParser("ACME Invoice 90005\nPO #: PO-10005\nTotal: 349.00")
+    service = ExtractionService(parser, _FakeLLM(_extracted(po_number=None)))
+    result = service.extract(_ingested())
+    assert result.invoice.po_number == "PO-10005"
     assert result.warnings == []
 
 
