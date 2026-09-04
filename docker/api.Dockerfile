@@ -19,7 +19,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --upgrade pip && pip install ".[agent,obs,eval]"
+RUN pip install --upgrade pip && pip install ".[agent,obs,eval,data]"
 
 # ─── Runtime ──────────────────────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
@@ -37,6 +37,7 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 COPY src ./src
 COPY config ./config
+COPY scripts ./scripts
 
 USER appuser
 EXPOSE 8000
