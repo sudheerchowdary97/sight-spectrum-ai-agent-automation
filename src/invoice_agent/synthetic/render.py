@@ -74,16 +74,39 @@ def render_html(invoice: Invoice, vendor: Vendor | None, variant: int = 0) -> st
     return template.render(**_context(invoice, vendor))
 
 
+def _register_embeddable_font(pdf: FPDF) -> str:
+    """Register an embeddable TrueType font so the PDF carries a real text layer.
+
+    Uses the freely-redistributable Vera fonts bundled with reportlab (present
+    wherever the ``[data]`` extra is installed). Falls back to the core Helvetica
+    font if unavailable — that PDF's text layer will not be extractable, so the
+    extraction pipeline will OCR it instead.
+    """
+    try:
+        import reportlab
+
+        fonts_dir = Path(reportlab.__file__).parent / "fonts"
+        regular, bold = fonts_dir / "Vera.ttf", fonts_dir / "VeraBd.ttf"
+        if regular.exists() and bold.exists():
+            pdf.add_font("Vera", "", str(regular))
+            pdf.add_font("Vera", "B", str(bold))
+            return "Vera"
+    except Exception:  # pragma: no cover - fallback path
+        pass
+    return "Helvetica"
+
+
 def render_pdf(invoice: Invoice, vendor: Vendor | None, path: Path) -> None:
-    """Render a clean, digitally-generated PDF invoice."""
+    """Render a clean, digitally-generated PDF invoice with an extractable text layer."""
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
+    font = _register_embeddable_font(pdf)
 
-    pdf.set_font("Helvetica", "B", 20)
+    pdf.set_font(font, "B", 20)
     pdf.cell(0, 12, "INVOICE", new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_font("Helvetica", size=10)
+    pdf.set_font(font, size=10)
     meta = (
         f"Invoice #: {invoice.invoice_number}    Date: {invoice.invoice_date}    "
         f"Due: {invoice.due_date}\nPO #: {invoice.po_number or 'N/A'}\n"
@@ -97,12 +120,12 @@ def render_pdf(invoice: Invoice, vendor: Vendor | None, path: Path) -> None:
     # Header row.
     widths = (12, 28, 80, 20, 25, 25)
     headers = ("#", "SKU", "Description", "Qty", "Unit", "Amount")
-    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_font(font, "B", 10)
     for w, h in zip(widths, headers, strict=True):
         pdf.cell(w, 7, h, border=1)
     pdf.ln(7)
 
-    pdf.set_font("Helvetica", size=9)
+    pdf.set_font(font, size=9)
     for line in invoice.lines:
         cells = (
             str(line.line_no),
@@ -117,7 +140,7 @@ def render_pdf(invoice: Invoice, vendor: Vendor | None, path: Path) -> None:
         pdf.ln(6)
 
     pdf.ln(4)
-    pdf.set_font("Helvetica", "B", 12)
+    pdf.set_font(font, "B", 12)
     pdf.cell(
         0, 8, f"Total: {invoice.currency} {invoice.total_amount:.2f}", new_x="LMARGIN", new_y="NEXT"
     )
