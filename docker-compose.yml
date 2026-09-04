@@ -74,10 +74,24 @@ services:
       OLLAMA_BASE_URL: http://ollama:11434
       ERP_BASE_URL: http://mock-erp:8001
       PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006
+      # Import live source from the bind mount below (no rebuild on code edits).
+      PYTHONPATH: /app/src
     ports:
       - "8000:8000"
     volumes:
       - ./data:/app/data
+      # Dev: mount source so code changes need only a restart, not a rebuild.
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./config:/app/config
+    command:
+      - uvicorn
+      - invoice_agent.api.main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --reload
     depends_on:
       postgres:
         condition: service_healthy
