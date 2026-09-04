@@ -84,10 +84,30 @@ sight-spectrum/
 
 ## Data
 
-No real invoices are used. A seeded generator (Task 1) produces synthetic
-Purchase Orders, Goods Receipts, AR items, and matching invoices rendered as
-PDF / scanned-PDF / HTML, plus a `ground_truth.json` that drives evaluation
-(extraction accuracy, match rate, STP rate).
+No real invoices are used. A **seeded, reproducible** generator produces
+synthetic Purchase Orders, Goods Receipts, AR items, and matching invoices
+rendered as PDF / scanned-PDF / HTML / image, plus a `ground_truth.json` that
+drives evaluation (extraction accuracy, match rate, STP rate).
+
+```bash
+make data                                             # defaults: seed 42, 60 POs
+python scripts/generate_synthetic_data.py --seed 42 --num-pos 60 --out data
+```
+
+Outputs (under `data/`, git-ignored):
+
+```
+master/            vendors, customers, purchase_orders, goods_receipts,
+                   ar_items, remittances  (JSON — seed for mock ERP + PGVector)
+generated/invoices/  rendered invoice documents (pdf/scanned-pdf/html/png)
+inbox/             .eml fixtures (invoices + remittances) for folder-replay ingestion
+ground_truth.json  labelled expectation per invoice (scenario, expected match, fields)
+summary.json       dataset statistics (counts, scenario mix, expected STP rate)
+```
+
+Scenario mix (auto-labelled): clean match, price variance, qty variance,
+partial, missing-PO, duplicate — plus fuzzy vendor-name variants to exercise
+semantic retrieval.
 
 ## License
 
